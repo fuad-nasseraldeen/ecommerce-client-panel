@@ -78,22 +78,22 @@ export default function CartPage() {
   const [country, setCountry] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
   async function fetchProducts(cartProducts) {
-  try {
-    const response = await axios.post('/api/cart', { ids: cartProducts });
-    setProducts(response.data)
-    console.log('Fetched products:', response.data);
-  } catch (error) {
-    console.error('Error fetching products:', error);
+    try {
+      const response = await axios.post('/api/cart', { ids: cartProducts })
+      setProducts(response.data)
+      console.log('Fetched products:', response.data)
+    } catch (error) {
+      console.error('Error fetching products:', error)
+    }
   }
-}
-    useEffect(() => {
-      if (cartProducts.length > 0) {
-        // Only make the API call if cartProducts is not empty
-        fetchProducts(cartProducts)
-      } else {
-        setProducts([]) // Clear products if cart is empty
-      }
-    }, [cartProducts])
+  useEffect(() => {
+    if (cartProducts.length > 0) {
+      // Only make the API call if cartProducts is not empty
+      fetchProducts(cartProducts)
+    } else {
+      setProducts([]) // Clear products if cart is empty
+    }
+  }, [cartProducts])
   useEffect(() => {
     if (typeof window === 'undefined') {
       return
