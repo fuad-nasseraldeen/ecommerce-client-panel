@@ -11,12 +11,15 @@ import CartIcon from '@/icons/CartIcon'
 const Bg = styled.div`
   background-color: #222;
   color: #fff;
+  padding: 50px 0;
 `
-
 const Title = styled.h1`
   margin: 0;
   font-weight: normal;
-  font-size: 3rem;
+  font-size: 1.5rem;
+  @media screen and (min-width: 768px) {
+    font-size: 3rem;
+  }
 `
 const Desc = styled.p`
   color: #aaa;
@@ -24,21 +27,37 @@ const Desc = styled.p`
 `
 const ColumnsWrapper = styled.div`
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-columns: 1fr;
   gap: 40px;
   img {
     max-width: 100%;
+    max-height: 200px;
+    display: block;
+    margin: 0 auto;
+  }
+  div:nth-child(1) {
+    order: 2;
+  }
+  @media screen and (min-width: 768px) {
+    grid-template-columns: 1.1fr 0.9fr;
+    div:nth-child(1) {
+      order: 0;
+    }
+    img {
+      max-width: 100%;
+    }
   }
 `
-const Columns = styled.div`
+const Column = styled.div`
   display: flex;
   align-items: center;
 `
 const ButtonsWrapper = styled.div`
   display: flex;
   gap: 10px;
-  margin: 35px 0px;
+  margin-top: 25px;
 `
+
 export default function Featured({ product }) {
   const { addProduct } = useContext(CartContext)
   function handleAddFeaturedToCart() {
@@ -48,12 +67,12 @@ export default function Featured({ product }) {
     <Bg>
       <Center>
         <ColumnsWrapper>
-          <Columns>
+          <Column>
             <div>
               <Title>{product?.title}</Title>
               <Desc>{product?.description}</Desc>
               <ButtonsWrapper>
-                <ButtonLink href={'/products/' + product?._id} $white $outline>
+                <ButtonLink href={'/product/' + product?._id} $white $outline>
                   Read More
                 </ButtonLink>
                 <Button $white onClick={handleAddFeaturedToCart}>
@@ -62,8 +81,8 @@ export default function Featured({ product }) {
                 </Button>
               </ButtonsWrapper>
             </div>
-          </Columns>
-          <Columns>
+          </Column>
+          <ColumnsWrapper>
             {product &&
               product.images &&
               product.images.map((image, index) => {
@@ -73,7 +92,7 @@ export default function Featured({ product }) {
                   </div>
                 )
               })}
-          </Columns>
+          </ColumnsWrapper>
         </ColumnsWrapper>
       </Center>
     </Bg>

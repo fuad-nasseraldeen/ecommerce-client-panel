@@ -1,44 +1,23 @@
-'use client'
-
-import Link from 'next/link'
-import styled from 'styled-components'
+import Header from '@/app/header/page'
 import Center from '@/app/components/Center'
+import { mongooseConnect } from '@/lib/mongoose'
+import { Product } from '@/models/Product'
+import Title from '@/app/components/Title'
+import ProductsClientPage from '@/app/components/ProductsClientPage'
 
-const StyledHeader = styled.header`
-  background-color: #222;
-`
-const Logo = styled(Link)`
-  color: #fff;
-  text-decoration: none;
-`
-const Wrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 20px 0;
-`
-const StyledNav = styled.nav`
-  display: flex;
-  gap: 15px;
-`
-const NavLink = styled(Link)`
-  color: #aaa;
-  text-decoration: none;
-`
-export default function Page() {
+export default async function ProductsServer() {
+  // Server-side fetching of products
+  await mongooseConnect()
+  const products = await Product.find({}, null, { sort: { _id: -1 } })
+
   return (
-    <StyledHeader>
+    <>
+      <Header />
       <Center>
-        <Wrapper>
-          <Logo href={'/'}>Ecommerce</Logo>
-          <StyledNav>
-            <NavLink href={'/'}>Home</NavLink>
-            <NavLink href={'/products'}>All Products</NavLink>
-            <NavLink href={'/categories'}>Categories</NavLink>
-            <NavLink href={'/account'}>Account</NavLink>
-            <NavLink href={'/cart'}>Cart (0)</NavLink>
-          </StyledNav>
-        </Wrapper>
+        <Title>All products</Title>
+        {/* Pass products to a client-side component */}
+        <ProductsClientPage products={JSON.parse(JSON.stringify(products))} />
       </Center>
-    </StyledHeader>
+    </>
   )
 }

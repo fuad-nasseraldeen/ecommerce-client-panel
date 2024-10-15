@@ -103,6 +103,7 @@ export default function CartPage() {
       clearCart()
     }
   }, [])
+
   function moreOfThisProduct(id) {
     addProduct(id)
   }
