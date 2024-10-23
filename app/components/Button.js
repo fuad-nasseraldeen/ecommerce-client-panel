@@ -78,9 +78,14 @@ export const ButtonStyle = css`
         height: 20px;
       }
     `}
-
+    ${(props) =>
+    props.$product &&
+    css`
+      padding: 10px 50px;
+    `}
   &:hover {
     transform: scale(0.95);
+    transition: transform 0.3s ease;
   }
 `
 const StyledButton = styled.button`

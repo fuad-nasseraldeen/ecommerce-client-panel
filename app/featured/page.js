@@ -30,8 +30,8 @@ const ColumnsWrapper = styled.div`
   grid-template-columns: 1fr;
   gap: 40px;
   img {
-    max-width: 100%;
-    max-height: 200px;
+    // max-width: 100%;
+    // max-height: 220px;
     display: block;
     margin: 0 auto;
   }
@@ -44,7 +44,7 @@ const ColumnsWrapper = styled.div`
       order: 0;
     }
     img {
-      max-width: 100%;
+      // max-width: 100%;
     }
   }
 `
@@ -82,17 +82,7 @@ export default function Featured({ product }) {
               </ButtonsWrapper>
             </div>
           </Column>
-          <ColumnsWrapper>
-            {product &&
-              product.images &&
-              product.images.map((image, index) => {
-                return (
-                  <div key={index}>
-                    <img src={image} alt='' />
-                  </div>
-                )
-              })}
-          </ColumnsWrapper>
+          <ColumnsWrapper>{product && product.thumbnail && <img src={product.thumbnail} alt='' />}</ColumnsWrapper>
         </ColumnsWrapper>
       </Center>
     </Bg>

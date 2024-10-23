@@ -4,6 +4,7 @@ import { CartContext } from '@/app/components/CartContext'
 import Link from 'next/link'
 import styled from 'styled-components'
 import Center from '@/app/components/Center'
+import Title from '@/app/components/Title'
 import BarsIcon from '@/icons/Bars'
 
 const StyledHeader = styled.header`
@@ -18,29 +19,25 @@ const Logo = styled(Link)`
 const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 20px 0;
 `
 const StyledNav = styled.nav`
-  ${(props) =>
-    props.mobileNavActive
-      ? `
-    display: block;
-  `
-      : `
-    display: none;
-  `}
-  gap: 15px;
+  ${(props) => (props.$mobileNavActive ? `display: block; ` : `display: none;`)}
+  gap: 20px;
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 70px 20px 20px;
+  z-index: 10;
+  padding: 20px 20px 20px;
   background-color: #222;
   @media screen and (min-width: 768px) {
     display: flex;
     position: static;
-    padding: 0;
+    padding: 20px 20px 20px;
+    font-size: 18px;
   }
 `
 const NavLink = styled(Link)`
@@ -51,6 +48,10 @@ const NavLink = styled(Link)`
   @media screen and (min-width: 768px) {
     padding: 0;
   }
+  &:hover {
+    color: #fff;
+    transition: color 0.5s ease;
+  }
 `
 const NavButton = styled.button`
   background-color: transparent;
@@ -60,7 +61,7 @@ const NavButton = styled.button`
   color: white;
   cursor: pointer;
   position: relative;
-  z-index: 3;
+  z-index: 13;
   @media screen and (min-width: 768px) {
     display: none;
   }
@@ -73,15 +74,25 @@ export default function Header() {
     <StyledHeader>
       <Center>
         <Wrapper>
-          <Logo href={'/'}>Ecommerce</Logo>
-          <StyledNav mobileNavActive={mobileNavActive}>
+          <Title>
+            <Logo href={'/'}>Ecommerce</Logo>
+          </Title>
+          <StyledNav $mobileNavActive={mobileNavActive}>
             <NavLink href={'/'}>Home</NavLink>
             <NavLink href={'/products'}>All products</NavLink>
-            <NavLink href={'/categories'}>Categories</NavLink>
-            <NavLink href={'/account'}>Account</NavLink>
-            <NavLink href={'/cart'}>Cart ({cartProducts.length})</NavLink>
+            {/* <NavLink href={'/categories'}>Categories</NavLink>
+            <NavLink href={'/account'}>Account</NavLink> */}
+            <NavLink className='cart-icon' href={'/cart'}>
+              Cart ({cartProducts.length})
+            </NavLink>
           </StyledNav>
-          <NavButton onClick={() => setMobileNavActive((prev) => !prev)}>
+          <NavButton
+            className='cart-icon'
+            onClick={() => {
+              setMobileNavActive((prev) => !prev)
+              console.log(mobileNavActive)
+            }}
+          >
             <BarsIcon />
           </NavButton>
         </Wrapper>

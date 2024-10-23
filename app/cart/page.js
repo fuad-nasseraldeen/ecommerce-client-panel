@@ -8,6 +8,8 @@ import { CartContext } from '@/app/components/CartContext'
 import axios from 'axios'
 import Table from '@/app/components/Table'
 import Input from '@/app/components/Input'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 
 const ColumnsWrapper = styled.div`
   display: grid;
@@ -78,6 +80,7 @@ export default function CartPage() {
   const [country, setCountry] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
   async function fetchProducts(cartProducts) {
+    NProgress.start() // Start the progress bar when fetching starts
     try {
       const response = await axios.post('/api/cart', { ids: cartProducts })
       setProducts(response.data)
@@ -85,6 +88,7 @@ export default function CartPage() {
     } catch (error) {
       console.error('Error fetching products:', error)
     }
+    NProgress.done() // End the progress bar once the fetch is done
   }
   useEffect(() => {
     if (cartProducts.length > 0) {
@@ -145,6 +149,7 @@ export default function CartPage() {
       </>
     )
   }
+
   return (
     <>
       <Header />
