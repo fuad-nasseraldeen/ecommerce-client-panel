@@ -51,6 +51,7 @@ const Title = styled.h2`
 const ScrollContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr;
+  justify-items: center;
   gap: 20px;
   white-space: nowrap;
   gap: 1.5rem;
