@@ -17,17 +17,12 @@ const Section = styled.section`
   position: relative;
   overflow: hidden;
   z-index: 10;
-
-  .dark & {
-    background-color: #0b1727;
-    color: white;
-  }
 `
 
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 3rem;
 `
 
 const TitleWrapper = styled.div`
@@ -53,22 +48,20 @@ const Title = styled.h2`
   }
 `
 
-// Scrollable container for products
 const ScrollContainer = styled.div`
-  display: flex;
-  flex-flow: wrap;
-  overflow-x: auto; /* Enable horizontal scrolling */
-  white-space: nowrap; /* Prevent line breaks to keep all items in one row */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  white-space: nowrap;
   gap: 1.5rem;
-  padding-bottom: 1rem; /* Add padding for better look when scrolling */
-
-  &::-webkit-scrollbar {
-    display: none; /* Hide the scrollbar */
+  padding-bottom: 1rem;
+  @media screen and (min-width: 450px) {
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    gap: 20px;
   }
-
-  /* Add some padding for the container */
   @media screen and (min-width: 768px) {
-    margin-top: 3rem;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   }
 `
 
@@ -144,7 +137,6 @@ export default function ShopByCategory() {
     return <div>No categories available.</div>
   }
 
-
   useEffect(() => {
     if (loading) {
       NProgress.start()
@@ -152,7 +144,6 @@ export default function ShopByCategory() {
       NProgress.done()
     }
   }, [loading])
-
 
   if (error) {
     return <div>Error: {error}</div>

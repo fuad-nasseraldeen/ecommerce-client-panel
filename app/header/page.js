@@ -1,12 +1,13 @@
 'use client'
-import { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import { CartContext } from '@/app/components/CartContext'
 import Link from 'next/link'
 import styled from 'styled-components'
 import Center from '@/app/components/Center'
 import Title from '@/app/components/Title'
 import BarsIcon from '@/icons/Bars'
-
+import { BlurOverlay } from '@/app/components/BlurOverlay'
+import { LoadingIndicator } from '@/app/components/Spinner'
 const StyledHeader = styled.header`
   background-color: #222;
 `
@@ -15,6 +16,24 @@ const Logo = styled(Link)`
   text-decoration: none;
   position: relative;
   z-index: 3;
+  display: flex;
+
+  img {
+    height: 60px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4); /* Box shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover and click */
+  }
+
+  &:hover img {
+    transform: scale(1.05); /* Slight scale up on hover */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.6); /* More pronounced shadow on hover */
+  }
+
+  &:active img {
+    transform: scale(0.98); /* Slight scale down on click */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow change on click */
+  }
 `
 const Wrapper = styled.div`
   display: flex;
@@ -70,13 +89,38 @@ const NavButton = styled.button`
 export default function Header() {
   const { cartProducts } = useContext(CartContext)
   const [mobileNavActive, setMobileNavActive] = useState(false)
+  const [loading, setLoading] = useState(false)
+  useEffect(() => {
+
+    return () => {
+      setTimeout(() => {
+      setLoading(false)
+    }, 2000)
+    }
+  }, [loading])
+
+  if (loading)
+    return (
+      <>
+        <BlurOverlay />
+        <LoadingIndicator />
+      </>
+    )
+
+  const backToHomePage = () => {
+    setLoading(true)
+  }
+
   return (
     <StyledHeader>
       <Center>
         <Wrapper>
-          <Title>
-            <Logo href={'/'}>Ecommerce</Logo>
-          </Title>
+          {/* <Title> */}
+          {/* <Logo href={'/'}>MegaStore</Logo> */}
+          <Logo href={'/'} onClick={backToHomePage}>
+            <img src={'megaStore1.png'} alt='megaStore' />
+          </Logo>
+          {/* </Title> */}
           <StyledNav $mobileNavActive={mobileNavActive}>
             <NavLink href={'/'}>Home</NavLink>
             <NavLink href={'/products'}>All products</NavLink>

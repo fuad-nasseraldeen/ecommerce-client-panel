@@ -87,7 +87,7 @@ export default function ProductPage() {
     }
   }, [loading])
 
-if (loading)
+  if (loading)
     return (
       <>
         <BlurOverlay />
