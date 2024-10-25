@@ -8,6 +8,7 @@ import Title from '@/app/components/Title'
 import BarsIcon from '@/icons/Bars'
 import { BlurOverlay } from '@/app/components/BlurOverlay'
 import { LoadingIndicator } from '@/app/components/Spinner'
+import { useSelector } from 'react-redux'
 const StyledHeader = styled.header`
   background-color: #222;
 `
@@ -87,15 +88,14 @@ const NavButton = styled.button`
 `
 
 export default function Header() {
-  const { cartProducts } = useContext(CartContext)
+  const carts = useSelector((state) => state.carts.cart)
   const [mobileNavActive, setMobileNavActive] = useState(false)
   const [loading, setLoading] = useState(false)
   useEffect(() => {
-
     return () => {
       setTimeout(() => {
-      setLoading(false)
-    }, 2000)
+        setLoading(false)
+      }, 2000)
     }
   }, [loading])
 
@@ -127,7 +127,7 @@ export default function Header() {
             {/* <NavLink href={'/categories'}>Categories</NavLink>
             <NavLink href={'/account'}>Account</NavLink> */}
             <NavLink className='cart-icon' href={'/cart'}>
-              Cart ({cartProducts.length})
+              Cart ({carts.length})
             </NavLink>
           </StyledNav>
           <NavButton

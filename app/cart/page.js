@@ -3,13 +3,14 @@ import Header from '../header/page'
 import styled from 'styled-components'
 import Center from '@/app/components/Center'
 import Button from '@/app/components/Button'
-import { useContext, useEffect, useState } from 'react'
-import { CartContext } from '@/app/components/CartContext'
+import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Table from '@/app/components/Table'
 import Input from '@/app/components/Input'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { addProductToCart, removeProductFromCart, clearCart } from '@/app/redux/cartActions'
 
 const ColumnsWrapper = styled.div`
   display: grid;
@@ -70,8 +71,10 @@ const CityHolder = styled.div`
 `
 
 export default function CartPage() {
-  const { cartProducts, addProduct, removeProduct, clearCart } = useContext(CartContext)
+  const carts = useSelector((state) => state.carts.cart)
   const [products, setProducts] = useState([])
+
+  const dispatch = useDispatch()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [city, setCity] = useState('')
@@ -79,40 +82,39 @@ export default function CartPage() {
   const [streetAddress, setStreetAddress] = useState('')
   const [country, setCountry] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
-  async function fetchProducts(cartProducts) {
-    NProgress.start() // Start the progress bar when fetching starts
+  async function fetchProducts(carts) {
+    NProgress.start()
     try {
-      const response = await axios.post('/api/cart', { ids: cartProducts })
+      const response = await axios.post('/api/cart', { ids: carts })
       setProducts(response.data)
       console.log('Fetched products:', response.data)
     } catch (error) {
       console.error('Error fetching products:', error)
     }
-    NProgress.done() // End the progress bar once the fetch is done
+    NProgress.done()
   }
   useEffect(() => {
-    if (cartProducts.length > 0) {
-      // Only make the API call if cartProducts is not empty
-      fetchProducts(cartProducts)
+    if (carts.length > 0) {
+      fetchProducts(carts)
     } else {
-      setProducts([]) // Clear products if cart is empty
+      setProducts([])
     }
-  }, [cartProducts])
+  }, [carts])
   useEffect(() => {
     if (typeof window === 'undefined') {
       return
     }
     if (window?.location.href.includes('success')) {
       setIsSuccess(true)
-      clearCart()
+      dispatch(clearCart())
     }
   }, [])
 
   function moreOfThisProduct(id) {
-    addProduct(id)
+    dispatch(addProductToCart(id))
   }
   function lessOfThisProduct(id) {
-    removeProduct(id)
+    dispatch(removeProductFromCart(id))
   }
   async function goToPayment() {
     const response = await axios.post('/api/checkout', {
@@ -122,14 +124,14 @@ export default function CartPage() {
       postalCode,
       streetAddress,
       country,
-      cartProducts,
+      carts,
     })
     if (response.data.url) {
       window.location = response.data.url
     }
   }
   let total = 0
-  for (const productId of cartProducts) {
+  for (const productId of carts) {
     const price = products.find((p) => p._id === productId)?.price || 0
     total += price
   }
@@ -157,7 +159,7 @@ export default function CartPage() {
         <ColumnsWrapper>
           <Box>
             <h2>Cart</h2>
-            {!cartProducts?.length && <div>Your cart is empty</div>}
+            {!carts?.length && <div>Your cart is empty</div>}
             {products?.length > 0 && (
               <Table>
                 <thead>
@@ -178,10 +180,10 @@ export default function CartPage() {
                       </ProductInfoCell>
                       <td>
                         <Button onClick={() => lessOfThisProduct(product._id)}>-</Button>
-                        <QuantityLabel>{cartProducts.filter((id) => id === product._id).length}</QuantityLabel>
+                        <QuantityLabel>{carts.filter((id) => id === product._id).length}</QuantityLabel>
                         <Button onClick={() => moreOfThisProduct(product._id)}>+</Button>
                       </td>
-                      <td>${cartProducts.filter((id) => id === product._id).length * product.price}</td>
+                      <td>${carts.filter((id) => id === product._id).length * product.price}</td>
                     </tr>
                   ))}
                   <tr>
@@ -193,7 +195,7 @@ export default function CartPage() {
               </Table>
             )}
           </Box>
-          {!!cartProducts?.length && (
+          {!!carts?.length && (
             <Box>
               <h2>Order information</h2>
               <Input

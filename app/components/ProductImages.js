@@ -56,7 +56,7 @@ export default function ProductImages({ images }) {
         <BigImage src={activeImage} alt='Active Product' />
       </BigImageWrapper>
       <ImageButtons>
-        {images.map((image, index) => (
+        {images?.map((image, index) => (
           <ImageButton key={index} $active={image === activeImage} onClick={() => setActiveImage(image)}>
             <ThumbnailImage src={image} alt={`Thumbnail ${index + 1}`} />
           </ImageButton>

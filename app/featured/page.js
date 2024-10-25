@@ -1,12 +1,15 @@
 'use client'
 
-import { useContext } from 'react'
-import { CartContext } from '@/app/components/CartContext'
+import { useRef } from 'react'
+import { motion, useInView } from 'framer-motion'
 import styled from 'styled-components'
 import Center from '@/app/components/Center'
 import Button from '@/app/components/Button'
 import ButtonLink from '@/app/components/ButtonLink'
 import CartIcon from '@/icons/CartIcon'
+import flyToCart from '@/app/components/FlyToCart'
+import { useDispatch } from 'react-redux'
+import { addProductToCart } from '../redux/cartActions'
 
 const Bg = styled.div`
   background-color: #222;
@@ -59,32 +62,44 @@ const ButtonsWrapper = styled.div`
 `
 
 export default function Featured({ product }) {
-  const { addProduct } = useContext(CartContext)
-  function handleAddFeaturedToCart() {
-    addProduct(product._id)
+  const dispatch = useDispatch()
+  const whiteBoxRef = useRef(null)
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true })
+
+  const addToCart = (e, id) => {
+    flyToCart(e, whiteBoxRef.current)
+    dispatch(addProductToCart(id))
   }
   return (
-    <Bg>
-      <Center>
-        <ColumnsWrapper>
-          <Column>
-            <div>
-              <Title>{product?.title}</Title>
-              <Desc>{product?.description}</Desc>
-              <ButtonsWrapper>
-                <ButtonLink href={'/product/' + product?._id} $white $outline>
-                  Read More
-                </ButtonLink>
-                <Button $white onClick={handleAddFeaturedToCart}>
-                  <CartIcon />
-                  Add to cart
-                </Button>
-              </ButtonsWrapper>
-            </div>
-          </Column>
-          <ColumnsWrapper>{product && product.thumbnail && <img src={product.thumbnail} alt='' />}</ColumnsWrapper>
-        </ColumnsWrapper>
-      </Center>
-    </Bg>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5 }}
+    >
+      <Bg>
+        <Center>
+          <ColumnsWrapper ref={whiteBoxRef}>
+            <Column>
+              <div>
+                <Title>{product?.title}</Title>
+                <Desc>{product?.description}</Desc>
+                <ButtonsWrapper>
+                  <ButtonLink href={'/product/' + product?._id} $white $outline>
+                    Read More
+                  </ButtonLink>
+                  <Button $white onClick={(e) => addToCart(e, product?._id)}>
+                    <CartIcon />
+                    Add to cart
+                  </Button>
+                </ButtonsWrapper>
+              </div>
+            </Column>
+            <ColumnsWrapper>{product && product.thumbnail && <img src={product.thumbnail} alt='' />}</ColumnsWrapper>
+          </ColumnsWrapper>
+        </Center>
+      </Bg>
+    </motion.div>
   )
 }

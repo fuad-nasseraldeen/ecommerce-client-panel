@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled, { css } from 'styled-components'
 import axios from 'axios'
 
@@ -93,9 +93,14 @@ const Hr = styled.hr`
 `
 
 export default function Review({ reviews, productId }) {
-  const [reviewsState, setReviewsState] = useState([...reviews].sort((a, b) => new Date(b.date) - new Date(a.date)))
+  const [reviewsState, setReviewsState] = useState([])
 
-  // Handle like update
+  useEffect(() => {
+    if (reviews?.length > 0) {
+      const sortReviewsByDate = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date))
+      setReviewsState(sortReviewsByDate)
+    }
+  }, reviews)
   async function handleLikeOnClick(reviewId) {
     try {
       const response = await axios.post('/api/review/like', { reviewId, productId })

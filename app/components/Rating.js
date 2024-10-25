@@ -6,6 +6,7 @@ import { Fragment } from 'react'
 const RatingContainer = styled.p`
   font-size: 0.875rem;
   margin-bottom: 1rem;
+  margin-top: 1rem;
 `
 
 const StarContainer = styled.span`

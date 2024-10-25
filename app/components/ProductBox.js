@@ -2,14 +2,15 @@ import { useRef } from 'react'
 import styled from 'styled-components'
 import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
-import { useContext, useState } from 'react'
-import { CartContext } from './CartContext'
+import { useState } from 'react'
 import flyToCart from './FlyToCart'
 import StarRating from '@/icons/StarRating'
 import MoreDetails from '@/icons/MoreDetails'
 import ResponsiveDiscountStar from '@/app/components/ResponsiveDiscountStart'
 import { BlurOverlay } from '@/app/components/BlurOverlay'
 import { LoadingIndicator } from '@/app/components/Spinner'
+import { useDispatch } from 'react-redux'
+import { addProductToCart } from '../redux/cartActions'
 
 const ProductWrapper = styled.div`
   text-decoration: none;
@@ -132,16 +133,16 @@ const MoreDetailsHref = styled(Link)`
 export default function ProductBox({ product }) {
   const { _id, title, price, images, rating, discountPercentage } = product
   const [loading, setLoading] = useState(false)
+  const dispatch = useDispatch()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
 
-  const { addProduct } = useContext(CartContext)
   const url = '/product/' + _id
   const whiteBoxRef = useRef(null)
 
   const addToCart = (e, id) => {
     flyToCart(e, whiteBoxRef.current)
-    addProduct(id)
+    dispatch(addProductToCart(id))
   }
 
   const goToProductSpecification = () => {
