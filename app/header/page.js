@@ -1,17 +1,29 @@
 'use client'
-import { useContext, useState, useEffect } from 'react'
-import { CartContext } from '@/app/components/CartContext'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import styled from 'styled-components'
+import { usePathname } from 'next/navigation'
+import styled, { css } from 'styled-components'
 import Center from '@/app/components/Center'
-import Title from '@/app/components/Title'
-import BarsIcon from '@/icons/Bars'
 import { BlurOverlay } from '@/app/components/BlurOverlay'
 import { LoadingIndicator } from '@/app/components/Spinner'
 import { useSelector } from 'react-redux'
+import BarsIcon from '@/app/icons/Bars'
+
 const StyledHeader = styled.header`
-  background-color: #222;
+  background-color: ${(props) => (props.$isScrolled ? '#aaa' : '#222')};
+
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: ${(props) =>
+    props.$isScrolled ? '0px 4px 12px rgba(0, 0, 0, 0.15)' : '0px 4px 8px rgba(255, 255, 255, 0.2)'};
+
+  @media screen and (min-width: 768px) {
+    box-shadow: none;
+  }
 `
+
 const Logo = styled(Link)`
   color: #fff;
   text-decoration: none;
@@ -22,63 +34,90 @@ const Logo = styled(Link)`
   img {
     height: 60px;
     border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4); /* Box shadow */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover and click */
+    box-shadow: ${(props) =>
+      props.$isScrolled ? '0px 6px 12px rgba(0, 0, 0, 0.4)' : '0px 6px 12px rgba(255, 255, 255, 0.4)'};
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
   &:hover img {
-    transform: scale(1.05); /* Slight scale up on hover */
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.6); /* More pronounced shadow on hover */
+    transform: scale(1.05);
+    box-shadow: ${(props) =>
+      props.$isScrolled ? '0px 8px 16px rgba(0, 0, 0, 0.6)' : '0px 8px 16px rgba(255, 255, 255, 0.6)'};
   }
 
   &:active img {
-    transform: scale(0.98); /* Slight scale down on click */
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow change on click */
+    transform: scale(0.98);
+    box-shadow: ${(props) =>
+      props.$isScrolled ? '0px 4px 8px rgba(0, 0, 0, 0.3)' : '0px 4px 8px rgba(255, 255, 255, 0.3)'};
   }
 `
+
 const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 0;
 `
+
 const StyledNav = styled.nav`
-  ${(props) => (props.$mobileNavActive ? `display: block; ` : `display: none;`)}
+  ${(props) => (props.$mobileNavActive ? `display: block;` : `display: none;`)}
+  ${(props) => (props.$isScrolled && !props.$mobileNavActive ? `background-color: #eee;` : 'background-color: #222;')}
   gap: 20px;
   position: fixed;
+  background-color: #222;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 10;
-  padding: 20px 20px 20px;
-  background-color: #222;
+  padding: 20px;
   @media screen and (min-width: 768px) {
     display: flex;
+    background-color: #222;
     position: static;
-    padding: 20px 20px 20px;
+    top: 80;
+    left: 10;
+    background-color: transparent;
+    padding: 20px;
     font-size: 18px;
   }
 `
+
 const NavLink = styled(Link)`
   display: block;
-  color: #aaa;
   text-decoration: none;
   padding: 10px 0;
-  @media screen and (min-width: 768px) {
-    padding: 0;
-  }
+  color: ${(props) => (props.$isScrolled ? '#222' : '#aaa')};
+  font-weight: bold;
   &:hover {
     color: #fff;
     transition: color 0.5s ease;
   }
+  ${(props) =>
+    props.$mobileNavActive &&
+    css`
+      color: #aaa;
+      text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
+    `}
+  ${(props) =>
+    props.$isActive &&
+    css`
+      color: #fff;
+      text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
+    `}
+
+  @media screen and (min-width: 768px) {
+    padding: 0;
+  }
 `
+
 const NavButton = styled.button`
   background-color: transparent;
   width: 30px;
   height: 30px;
   border: 0;
   color: white;
+  color: #eee;
   cursor: pointer;
   position: relative;
   z-index: 13;
@@ -88,14 +127,21 @@ const NavButton = styled.button`
 `
 
 export default function Header() {
-  const carts = useSelector((state) => state.carts.cart)
+  const pathname = usePathname()
+  const cart = useSelector((state) => state.cart.items)
   const [mobileNavActive, setMobileNavActive] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 0)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   useEffect(() => {
     return () => {
-      setTimeout(() => {
-        setLoading(false)
-      }, 2000)
+      setTimeout(() => setLoading(false), 2000)
     }
   }, [loading])
 
@@ -107,36 +153,42 @@ export default function Header() {
       </>
     )
 
-  const backToHomePage = () => {
-    setLoading(true)
-  }
+  const backToHomePage = () => setLoading(true)
 
   return (
-    <StyledHeader>
+    <StyledHeader $isScrolled={isScrolled} $mobileNavActive={mobileNavActive}>
       <Center>
         <Wrapper>
-          {/* <Title> */}
-          {/* <Logo href={'/'}>MegaStore</Logo> */}
-          <Logo href={'/'} onClick={backToHomePage}>
+          <Logo href={'/'} onClick={backToHomePage} $isScrolled={isScrolled}>
             <img src={'megaStore1.png'} alt='megaStore' />
           </Logo>
-          {/* </Title> */}
-          <StyledNav $mobileNavActive={mobileNavActive}>
-            <NavLink href={'/'}>Home</NavLink>
-            <NavLink href={'/products'}>All products</NavLink>
-            {/* <NavLink href={'/categories'}>Categories</NavLink>
-            <NavLink href={'/account'}>Account</NavLink> */}
-            <NavLink className='cart-icon' href={'/cart'}>
-              Cart ({carts.length})
+          <StyledNav $mobileNavActive={mobileNavActive} $isScrolled={isScrolled}>
+            <NavLink
+              $isScrolled={isScrolled}
+              $mobileNavActive={mobileNavActive}
+              $isActive={pathname === '/'}
+              href={'/'}
+            >
+              Home
+            </NavLink>
+            <NavLink
+              $isScrolled={isScrolled}
+              $mobileNavActive={mobileNavActive}
+              $isActive={pathname === '/products'}
+              href={'/products'}
+            >
+              All products
+            </NavLink>
+            <NavLink
+              $isScrolled={isScrolled}
+              $mobileNavActive={mobileNavActive}
+              $isActive={pathname === '/cart'}
+              href={'/cart'}
+            >
+              Cart ({cart?.reduce((acc, product) => acc + product.quantity, 0) || 0})
             </NavLink>
           </StyledNav>
-          <NavButton
-            className='cart-icon'
-            onClick={() => {
-              setMobileNavActive((prev) => !prev)
-              console.log(mobileNavActive)
-            }}
-          >
+          <NavButton $isScrolled={isScrolled} onClick={() => setMobileNavActive((prev) => !prev)}>
             <BarsIcon />
           </NavButton>
         </Wrapper>

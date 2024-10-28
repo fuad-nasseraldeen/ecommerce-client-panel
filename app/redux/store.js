@@ -6,7 +6,7 @@ import cartReducer from './cartSlice'
 const store = configureStore({
   reducer: {
     products: productReducer,
-    carts: cartReducer,
+    cart: cartReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),
 })

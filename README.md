@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# MegaStore 🛒 E-Commerce Website
 
-## Getting Started
+This is a full-stack e-commerce application built with **Next.js** for the frontend and **Redux** for state management. The app includes features such as product listing, category browsing, cart management with local storage support, and loading indicators.
 
-First, run the development server:
+## Table of Contents
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Setup and Installation](#setup-and-installation)
+- [Usage](#usage)
+- [Scripts](#scripts)
+- [Dependencies](#dependencies)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- Product listing and filtering by category
+- Dynamic homepage with featured and new arrival products
+- Cart management with persistence in local storage
+- Loading indicator for async actions
+- Styled with **Styled-Components**
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Project Structure
 
-## Learn More
+├── app/ │ ├── components/ # Reusable UI components │ ├── redux/ # Redux store and actions │ ├── util/ # Utility functions │ ├── newProducts/ # New products component │ ├── header/ # Header component │ └── featured/ # Featured product component ├── public/ # Static assets ├── pages/ # Next.js pages │ ├── api/ # API routes to interact with DB and fetch external APIs │ ├── hooks/ │ └── useDebounce # Custom hooks, including debounce functionality ├── stripe/ # Stripe integration for secure payment processing │ └── model # Stripe model setup to provide 100% website functionality to customers ├── README.md # Project documentation └── package.json # Project dependencies and scripts
+## Setup and Installation
 
-To learn more about Next.js, take a look at the following resources:
+1. **Clone the Repository**
+    ```bash
+    git clone https://github.com/fuad-nasseraldeen/ecommerce-client-panel.git
+    cd ecommerce-client-panel
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Install Dependencies**
+    ```bash
+    npm install
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+3. **Environment Variables**
+   - Create a `.env.local` file in the root directory.
+   - Define necessary variables (e.g., API keys or endpoints).
 
-## Deploy on Vercel
+4. **Run the Development Server**
+    ```bash
+    npm run dev
+    ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+5. **Open in Browser**
+   - Navigate to [http://localhost:3000](http://localhost:3000) to view the application.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Usage
+
+- **Homepage**: Displays a random featured product, categories to shop by, and new arrivals.
+- **Cart**: The cart is managed using Redux and persists in local storage. Items added to the cart are stored locally and will remain on page reload.
+- **Random Product on Homepage**: A random product is featured on the homepage using the `getRandomProduct` utility.
+
+## Scripts
+
+- `npm run dev`: Run the app in development mode.
+- `npm run build`: Build the app for production.
+- `npm start`: Start the production server after building.
+
+## Dependencies
+
+- **Next.js**: React framework for building web applications.
+- **React Redux**: For state management.
+- **Redux Toolkit**: Simplified Redux setup.
+- **Styled-Components**: CSS-in-JS library for styling components.
+- **Tailwind CSS**: Utility-first CSS framework for responsive design.
+- **React-Redux**: For connecting React with Redux.

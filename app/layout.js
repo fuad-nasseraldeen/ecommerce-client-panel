@@ -1,10 +1,12 @@
 'use client'
 import { createGlobalStyle } from 'styled-components'
 import Head from 'next/head'
-import { CartContextProvider } from '@/app/components/CartContext'
 import NgProgress from '@/app/components/NgProgress'
 import { Providers } from '@/app/redux/Providers'
 import store from '@/app/redux/store'
+import { loadCartFromLocalStorage } from '@/app/redux/cartActions'
+import { useEffect } from 'react'
+
 const GlobalStyles = createGlobalStyle`
   body {
     background-color: #eee;
@@ -15,6 +17,9 @@ const GlobalStyles = createGlobalStyle`
 `
 
 export default function RootLayout({ children }) {
+  useEffect(() => {
+    store.dispatch(loadCartFromLocalStorage())
+  }, [])
   return (
     <Providers store={store}>
       <html lang='en'>
@@ -39,7 +44,7 @@ export default function RootLayout({ children }) {
         <body>
           <GlobalStyles />
           <NgProgress />
-          <CartContextProvider>{children}</CartContextProvider>
+          {children}
         </body>
       </html>
     </Providers>

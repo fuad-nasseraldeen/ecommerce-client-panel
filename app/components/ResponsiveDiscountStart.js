@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import DiscountStar from '@/icons/DiscountStar'
+import DiscountStar from '@/app/icons/DiscountStar'
 import styled from 'styled-components'
 
 const DiscountStarWrapper = styled.div`

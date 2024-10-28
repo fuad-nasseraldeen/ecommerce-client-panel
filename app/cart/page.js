@@ -30,6 +30,7 @@ const Box = styled.div`
 
 const ProductInfoCell = styled.td`
   padding: 10px 0;
+  width: 50%;
 `
 
 const ProductImageBox = styled.div`
@@ -41,6 +42,7 @@ const ProductImageBox = styled.div`
   align-items: center;
   justify-content: center;
   border-radius: 10px;
+  margin: 0.5rem;
   img {
     max-width: 60px;
     max-height: 60px;
@@ -57,11 +59,11 @@ const ProductImageBox = styled.div`
 `
 
 const QuantityLabel = styled.span`
-  padding: 0 15px;
+  padding: 0px 24px;
   display: block;
   @media screen and (min-width: 768px) {
-    display: inline-block;
-    padding: 0 10px;
+    // display: inline-block;
+    // text-align: center;
   }
 `
 
@@ -69,11 +71,11 @@ const CityHolder = styled.div`
   display: flex;
   gap: 5px;
 `
-
+const Margin = styled.div`
+  margin: 0.5rem;
+`
 export default function CartPage() {
-  const carts = useSelector((state) => state.carts.cart)
-  const [products, setProducts] = useState([])
-
+  const cart = useSelector((state) => state.cart.items)
   const dispatch = useDispatch()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -82,39 +84,29 @@ export default function CartPage() {
   const [streetAddress, setStreetAddress] = useState('')
   const [country, setCountry] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
-  async function fetchProducts(carts) {
-    NProgress.start()
-    try {
-      const response = await axios.post('/api/cart', { ids: carts })
-      setProducts(response.data)
-      console.log('Fetched products:', response.data)
-    } catch (error) {
-      console.error('Error fetching products:', error)
-    }
-    NProgress.done()
-  }
-  useEffect(() => {
-    if (carts.length > 0) {
-      fetchProducts(carts)
-    } else {
-      setProducts([])
-    }
-  }, [carts])
+
   useEffect(() => {
     if (typeof window === 'undefined') {
       return
     }
     if (window?.location.href.includes('success')) {
       setIsSuccess(true)
-      dispatch(clearCart())
+      if (cart?.length > 0) {
+        dispatch(clearCart())
+      }
     }
   }, [])
 
-  function moreOfThisProduct(id) {
-    dispatch(addProductToCart(id))
+  function addProduct(product) {
+    NProgress.start()
+    dispatch(addProductToCart(product))
+    NProgress.done()
   }
-  function lessOfThisProduct(id) {
-    dispatch(removeProductFromCart(id))
+
+  function removeProduct(index) {
+    NProgress.start()
+    dispatch(removeProductFromCart(index))
+    NProgress.done()
   }
   async function goToPayment() {
     const response = await axios.post('/api/checkout', {
@@ -124,17 +116,13 @@ export default function CartPage() {
       postalCode,
       streetAddress,
       country,
-      carts,
+      cart,
     })
     if (response.data.url) {
       window.location = response.data.url
     }
   }
-  let total = 0
-  for (const productId of carts) {
-    const price = products.find((p) => p._id === productId)?.price || 0
-    total += price
-  }
+  const total = cart.reduce((acc, product) => acc + product.price * product.quantity, 0).toFixed(2)
 
   if (isSuccess) {
     return (
@@ -159,8 +147,8 @@ export default function CartPage() {
         <ColumnsWrapper>
           <Box>
             <h2>Cart</h2>
-            {!carts?.length && <div>Your cart is empty</div>}
-            {products?.length > 0 && (
+            {!cart?.length && <div>Your cart is empty</div>}
+            {cart?.length > 0 && (
               <Table>
                 <thead>
                   <tr>
@@ -170,20 +158,24 @@ export default function CartPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
-                    <tr key={product._id}>
+                  {cart?.map((product, index) => (
+                    <tr key={product?._id + Math.random() * (100 - 1)}>
                       <ProductInfoCell>
                         <ProductImageBox>
-                          <img src={product.images[0]} alt='' />
+                          <img src={product?.images?.[0]} alt='' />
                         </ProductImageBox>
-                        {product.title}
+                        {product?.title}
                       </ProductInfoCell>
                       <td>
-                        <Button onClick={() => lessOfThisProduct(product._id)}>-</Button>
-                        <QuantityLabel>{carts.filter((id) => id === product._id).length}</QuantityLabel>
-                        <Button onClick={() => moreOfThisProduct(product._id)}>+</Button>
+                        <Margin>
+                          <Button onClick={() => removeProduct(product)}>-</Button>
+                        </Margin>
+                        <QuantityLabel>{product?.quantity}</QuantityLabel>
+                        <Margin>
+                          <Button onClick={() => addProduct(product)}>+</Button>
+                        </Margin>
                       </td>
-                      <td>${carts.filter((id) => id === product._id).length * product.price}</td>
+                      <td>${(product.price * product.quantity).toFixed(2)}</td>
                     </tr>
                   ))}
                   <tr>
@@ -195,7 +187,8 @@ export default function CartPage() {
               </Table>
             )}
           </Box>
-          {!!carts?.length && (
+
+          {!!cart?.length && (
             <Box>
               <h2>Order information</h2>
               <Input

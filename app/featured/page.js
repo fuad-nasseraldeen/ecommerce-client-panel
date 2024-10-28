@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import Center from '@/app/components/Center'
 import Button from '@/app/components/Button'
 import ButtonLink from '@/app/components/ButtonLink'
-import CartIcon from '@/icons/CartIcon'
+import CartIcon from '@/app/icons/CartIcon'
 import flyToCart from '@/app/components/FlyToCart'
 import { useDispatch } from 'react-redux'
 import { addProductToCart } from '../redux/cartActions'
@@ -67,9 +67,9 @@ export default function Featured({ product }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
 
-  const addToCart = (e, id) => {
+  const addToCart = (e, product) => {
     flyToCart(e, whiteBoxRef.current)
-    dispatch(addProductToCart(id))
+    dispatch(addProductToCart(product))
   }
   return (
     <motion.div
@@ -89,7 +89,7 @@ export default function Featured({ product }) {
                   <ButtonLink href={'/product/' + product?._id} $white $outline>
                     Read More
                   </ButtonLink>
-                  <Button $white onClick={(e) => addToCart(e, product?._id)}>
+                  <Button $white onClick={(e) => addToCart(e, product)}>
                     <CartIcon />
                     Add to cart
                   </Button>

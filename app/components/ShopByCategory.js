@@ -52,7 +52,7 @@ const ScrollContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   justify-items: center;
-  gap: 20px;
+  gap: 45px;
   white-space: nowrap;
   gap: 1.5rem;
   padding-bottom: 1rem;

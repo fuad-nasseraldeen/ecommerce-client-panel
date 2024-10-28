@@ -3,7 +3,6 @@ import Header from './header/page'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts, fetchNewArrivals, fetchCategories, fetchHomePageProduct } from '@/app/redux/productActions'
-
 import NewProducts from '@/app/newProducts/NewProducts'
 import ShopByCategory from '@/app/components/ShopByCategory'
 import Featured from '@/app/featured/page'
@@ -15,7 +14,7 @@ export default function HomePage() {
   const dispatch = useDispatch()
   const { products, newArrivals, categories, homePageProduct, loading } = useSelector((state) => state.products)
   const [isRandomProductGenerated, setIsRandomProductGenerated] = useState(false)
-  
+
   useEffect(() => {
     dispatch(fetchProducts())
     dispatch(fetchNewArrivals())
@@ -41,11 +40,11 @@ export default function HomePage() {
     )
 
   return (
-    <div>
+    <>
       <Header />
       <Featured product={homePageProduct} />
       <ShopByCategory categories={categories} />
       <NewProducts products={newArrivals} />
-    </div>
+    </>
   )
 }

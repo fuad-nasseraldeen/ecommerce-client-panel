@@ -1,7 +1,7 @@
 export const categoriesImg = [
+  { img: '/categories/mobile-accessories.png', name: 'mobile-accessories' },
   { img: '/categories/tablets.png', name: 'tablets' },
   { img: '/categories/smartphones.png', name: 'smartphones' },
-  { img: '/categories/mobile-accessories.png', name: 'mobile-accessories' },
   { img: '/categories/mens-watches.png', name: 'mens-watches' },
   { img: '/categories/laptops.png', name: 'laptops' },
   { img: '/categories/fragrances.png', name: 'fragrances' },

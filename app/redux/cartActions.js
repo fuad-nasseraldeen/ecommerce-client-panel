@@ -1,25 +1,48 @@
 import axios from 'axios'
-import { fetchCartRequest, addCartSuccess, fetchCartFailure, removeCartSuccess } from './cartSlice'
+import {
+  fetchCartRequest,
+  addCartSuccess,
+  fetchCartFailure,
+  removeCartSuccess,
+  saveCartFromLocalStorageSuccess,
+} from './cartSlice'
 
-export const addProductToCart = (cartProducts) => async (dispatch) => {
+export const addProductToCart = (product) => async (dispatch, getState) => {
   dispatch(fetchCartRequest())
   try {
-    const response = await axios.post('/api/cart', { ids: cartProducts })
-    dispatch(addCartSuccess(response.data))
+    dispatch(addCartSuccess(product))
+
+    const updatedCart = getState().cart.items
+    localStorage.setItem('cart', JSON.stringify(updatedCart))
   } catch (error) {
     dispatch(fetchCartFailure(error.message))
   }
 }
-export const removeProductFromCart = (id) => async (dispatch) => {
+
+export const removeProductFromCart = (productIndex) => async (dispatch, getState) => {
   dispatch(fetchCartRequest())
   try {
-    const response = await axios.post('/api/cart', { ids: cartProducts })
-    dispatch(removeCartSuccess(response.data))
+    dispatch(removeCartSuccess(productIndex))
+
+    const updatedCart = getState().cart.items
+    localStorage.setItem('cart', JSON.stringify(updatedCart))
   } catch (error) {
     dispatch(fetchCartFailure(error.message))
   }
 }
+
 export const clearCart = () => async (dispatch) => {
-  console.log('clear cart')
   dispatch(clearCart())
+}
+
+export const loadCartFromLocalStorage = () => (dispatch) => {
+  const savedCart = localStorage.getItem('cart')
+  if (savedCart) {
+    try {
+      dispatch(fetchCartRequest())
+      dispatch(saveCartFromLocalStorageSuccess(JSON.parse(savedCart)))
+    } catch (error) {
+      dispatch(fetchCartFailure(error.message))
+    }
+  }
 }

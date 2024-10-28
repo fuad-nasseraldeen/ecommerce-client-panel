@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import SearchIcon from '@/icons/Search'
+import SearchIcon from '@/app/icons/Search'
 // Styled components for the search bar
 const SearchContainer = styled.div`
   display: flex;

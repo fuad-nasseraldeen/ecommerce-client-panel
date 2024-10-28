@@ -4,8 +4,8 @@ import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import { useState } from 'react'
 import flyToCart from './FlyToCart'
-import StarRating from '@/icons/StarRating'
-import MoreDetails from '@/icons/MoreDetails'
+import StarRating from '@/app/icons/StarRating'
+import MoreDetails from '@/app/icons/MoreDetails'
 import ResponsiveDiscountStar from '@/app/components/ResponsiveDiscountStart'
 import { BlurOverlay } from '@/app/components/BlurOverlay'
 import { LoadingIndicator } from '@/app/components/Spinner'
@@ -83,14 +83,16 @@ const ImageContainer = styled.div`
 `
 
 const Title = styled(Link)`
-  display: block;
+  display: flex;
+  align-items: center; /* Centers vertically */
+  justify-content: center; /* Centers horizontally */
   font-weight: 700;
   font-size: 1.1rem;
-  margin: 10px 0;
   text-align: center;
   color: #333;
   text-decoration: none;
   transition: color 0.3s ease-in-out;
+  height: 3.5rem;
 `
 
 const ProductInfoBox = styled.div`
@@ -140,9 +142,9 @@ export default function ProductBox({ product }) {
   const url = '/product/' + _id
   const whiteBoxRef = useRef(null)
 
-  const addToCart = (e, id) => {
+  const addToCart = (e) => {
     flyToCart(e, whiteBoxRef.current)
-    dispatch(addProductToCart(id))
+    dispatch(addProductToCart(product))
   }
 
   const goToProductSpecification = () => {
@@ -166,7 +168,7 @@ export default function ProductBox({ product }) {
         <ImageContainer>
           <img ref={whiteBoxRef} src={images[0]} alt={title} />
           <ButtonContainer className='overlay'>
-            <button onClick={(e) => addToCart(e, _id)}>🛒 add to cart</button>
+            <button onClick={(e) => addToCart(e)}>🛒 add to cart</button>
             <MoreDetailsHref href={url}>
               <button onClick={goToProductSpecification}>
                 <MoreDetails /> more details

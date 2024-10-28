@@ -1,6 +1,6 @@
 import styled from 'styled-components'
-import StarRating from '@/icons/StarRating'
-import HalfStarRating from '@/icons/HalfStarRating'
+import StarRating from '@/app/icons/StarRating'
+import HalfStarRating from '@/app/icons/HalfStarRating'
 import { Fragment } from 'react'
 
 const RatingContainer = styled.p`

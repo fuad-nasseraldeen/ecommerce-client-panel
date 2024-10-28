@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import Center from '@/app/components/Center'
 import Review from '@/app/components/Review'
 import Header from '@/app/header/page'
-import CartIcon from '@/icons/CartIcon'
+import CartIcon from '@/app/icons/CartIcon'
 import styled from 'styled-components'
 import { useParams } from 'next/navigation'
 import NProgress from 'nprogress'
@@ -126,7 +126,7 @@ export default function ProductPage() {
         transition={{ duration: 0.5 }}
       >
         <Center>
-          <ColWrapper >
+          <ColWrapper>
             <ProductImages images={product?.images} />
             <Info>
               <Title>{product?.title}</Title>
@@ -144,7 +144,7 @@ export default function ProductPage() {
                   <Price>${product?.price}</Price>
                 </div>
                 <div ref={whiteBoxRef}>
-                  <Button $primary $product onClick={(e) => handleAddProductToCart(e, product?._id)}>
+                  <Button $primary $product onClick={(e) => handleAddProductToCart(e, product)}>
                     <CartIcon />
                     Add to cart
                   </Button>
