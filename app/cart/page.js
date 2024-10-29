@@ -5,13 +5,14 @@ import Center from '@/app/components/Center'
 import Button from '@/app/components/Button'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import { goToPayment } from '@/app/util/checkoutUtils'
 import Table from '@/app/components/Table'
 import Input from '@/app/components/Input'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { useDispatch, useSelector } from 'react-redux'
 import { addProductToCart, removeProductFromCart, clearCart } from '@/app/redux/cartActions'
-
+import { addCheckoutDetails, clearCheckoutDetails } from '@/app/redux/checkoutActions'
 const ColumnsWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr;
@@ -76,13 +77,14 @@ const Margin = styled.div`
 `
 export default function CartPage() {
   const cart = useSelector((state) => state.cart.items)
+  const checkoutDetails = useSelector((state) => state.checkout.details[0])
   const dispatch = useDispatch()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [city, setCity] = useState('')
-  const [postalCode, setPostalCode] = useState('')
-  const [streetAddress, setStreetAddress] = useState('')
-  const [country, setCountry] = useState('')
+  const [name, setName] = useState(checkoutDetails.name || '')
+  const [email, setEmail] = useState(checkoutDetails.email || '')
+  const [city, setCity] = useState(checkoutDetails.city || '')
+  const [postalCode, setPostalCode] = useState(checkoutDetails.postalCode || '')
+  const [streetAddress, setStreetAddress] = useState(checkoutDetails.streetAddress || '')
+  const [country, setCountry] = useState(checkoutDetails.country || '')
   const [isSuccess, setIsSuccess] = useState(false)
 
   useEffect(() => {
@@ -93,6 +95,7 @@ export default function CartPage() {
       setIsSuccess(true)
       if (cart?.length > 0) {
         dispatch(clearCart())
+        dispatch(clearCheckoutDetails())
       }
     }
   }, [])
@@ -108,22 +111,37 @@ export default function CartPage() {
     dispatch(removeProductFromCart(index))
     NProgress.done()
   }
-  async function goToPayment() {
-    const response = await axios.post('/api/checkout', {
-      name,
-      email,
-      city,
-      postalCode,
-      streetAddress,
-      country,
-      cart,
-    })
-    if (response.data.url) {
-      window.location = response.data.url
-    }
+  async function handlePayment() {
+    await goToPayment({ name, email, city, postalCode, streetAddress, country, cart })
   }
+
   const total = cart.reduce((acc, product) => acc + product.price * product.quantity, 0).toFixed(2)
 
+  const handleChange = (key, value) => {
+    switch (key) {
+      case 'name':
+        setName(value)
+        break
+      case 'email':
+        setEmail(value)
+        break
+      case 'city':
+        setCity(value)
+        break
+      case 'postalCode':
+        setPostalCode(value)
+        break
+      case 'streetAddress':
+        setStreetAddress(value)
+        break
+      case 'country':
+        setCountry(value)
+        break
+      default:
+        return
+    }
+    dispatch(addCheckoutDetails({ [key]: value }))
+  }
   if (isSuccess) {
     return (
       <>
@@ -196,14 +214,14 @@ export default function CartPage() {
                 placeholder='Name'
                 value={name}
                 name='name'
-                onChange={(ev) => setName(ev.target.value)}
+                onChange={(ev) => handleChange('name', ev.target.value)}
               />
               <Input
                 type='text'
                 placeholder='Email'
                 value={email}
                 name='email'
-                onChange={(ev) => setEmail(ev.target.value)}
+                onChange={(ev) => handleChange('email', ev.target.value)}
               />
               <CityHolder>
                 <Input
@@ -211,14 +229,14 @@ export default function CartPage() {
                   placeholder='City'
                   value={city}
                   name='city'
-                  onChange={(ev) => setCity(ev.target.value)}
+                  onChange={(ev) => handleChange('city', ev.target.value)}
                 />
                 <Input
                   type='text'
                   placeholder='Postal Code'
                   value={postalCode}
                   name='postalCode'
-                  onChange={(ev) => setPostalCode(ev.target.value)}
+                  onChange={(ev) => handleChange('postalCode', ev.target.value)}
                 />
               </CityHolder>
               <Input
@@ -226,16 +244,16 @@ export default function CartPage() {
                 placeholder='Street Address'
                 value={streetAddress}
                 name='streetAddress'
-                onChange={(ev) => setStreetAddress(ev.target.value)}
+                onChange={(ev) => handleChange('streetAddress', ev.target.value)}
               />
               <Input
                 type='text'
                 placeholder='Country'
                 value={country}
                 name='country'
-                onChange={(ev) => setCountry(ev.target.value)}
+                onChange={(ev) => handleChange('country', ev.target.value)}
               />
-              <Button $black $block onClick={goToPayment}>
+              <Button $black $block onClick={handlePayment}>
                 Continue to payment
               </Button>
             </Box>

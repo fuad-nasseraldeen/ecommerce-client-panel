@@ -5,7 +5,9 @@ import NgProgress from '@/app/components/NgProgress'
 import { Providers } from '@/app/redux/Providers'
 import store from '@/app/redux/store'
 import { loadCartFromLocalStorage } from '@/app/redux/cartActions'
+import { loadCheckoutDetailsFromLocalStorage } from '@/app/redux/checkoutActions'
 import { useEffect } from 'react'
+import { CartSummary } from '@/app/components/CartSummary'
 
 const GlobalStyles = createGlobalStyle`
   body {
@@ -19,6 +21,7 @@ const GlobalStyles = createGlobalStyle`
 export default function RootLayout({ children }) {
   useEffect(() => {
     store.dispatch(loadCartFromLocalStorage())
+    store.dispatch(loadCheckoutDetailsFromLocalStorage())
   }, [])
   return (
     <Providers store={store}>
@@ -45,7 +48,9 @@ export default function RootLayout({ children }) {
           <GlobalStyles />
           <NgProgress />
           {children}
+          <CartSummary />
         </body>
+
       </html>
     </Providers>
   )

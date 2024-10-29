@@ -20,6 +20,7 @@ import { LoadingIndicator } from '@/app/components/Spinner'
 
 const Container = styled.div`
   display: grid;
+
   @media screen and (min-width: 768px) {
     grid-template-columns: 0.4fr 1.6fr;
     padding: 50px;
@@ -28,8 +29,10 @@ const Container = styled.div`
   grid-template-columns: 1fr;
   padding: 10px;
   gap: 5px;
+  padding-bottom: 140px;
 `
-const Content = styled.div``
+const Content = styled.div`
+  padding-bottom: 140px;`
 
 export default function ProductsPage() {
   const dispatch = useDispatch()
@@ -39,7 +42,7 @@ export default function ProductsPage() {
   const [sortOption, setSortOption] = useState('sort1')
   const [selectedCategoryId, setSelectedCategoryId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [loadingProduct, setLoadingProduct] = useState(true)
+  const [loadingProduct, setLoadingProduct] = useState(false)
   const debouncedSearchQuery = useDebounce(searchQuery, 0.3) // 300ms debounce delay
 
   useEffect(() => {
@@ -60,9 +63,7 @@ export default function ProductsPage() {
     }
   }, [loading, productsByCategory, products])
   const sortedProducts = useMemo(() => {
-    setLoadingProduct(true)
-    const productsToSort =
-      productsByCategory?.length > 0 && selectedCategoryId ? productsByCategory : products
+    const productsToSort = productsByCategory?.length > 0 && selectedCategoryId ? productsByCategory : products
 
     const filteredProducts = productsToSort.filter((product) => {
       return (
@@ -71,19 +72,27 @@ export default function ProductsPage() {
         (product.tags && product.tags.some((tag) => tag.toLowerCase().includes(debouncedSearchQuery.toLowerCase())))
       )
     })
-    setLoadingProduct(false)
+
     return applySort(filteredProducts, sortOption)
   }, [sortOption, products, productsByCategory, selectedCategoryId, searchQuery, debouncedSearchQuery])
 
   const handleSortChange = (value) => {
+    setLoadingProduct(true)
     setSortOption(value)
+    setTimeout(() => {
+      setLoadingProduct(false)
+    }, 1000)
   }
 
   const handleCategorySortChange = (categoryId) => {
+    setLoadingProduct(true)
     if (selectedCategoryId !== categoryId) {
       setSelectedCategoryId(categoryId)
       dispatch(fetchProductsByCategory(categoryId))
     }
+    setTimeout(() => {
+      setLoadingProduct(false)
+    }, 1000)
   }
 
   const handleSearchChange = (query) => {

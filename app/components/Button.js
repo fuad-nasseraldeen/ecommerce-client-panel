@@ -16,6 +16,11 @@ export const ButtonStyle = css`
     margin-right: 5px;
   }
   ${(props) =>
+    props.$disabled &&
+    css`
+      cursor: not-allowed;
+    `}
+  ${(props) =>
     props.$white &&
     props.$outline &&
     css`
@@ -64,7 +69,7 @@ export const ButtonStyle = css`
     `}
     ${(props) =>
     props.$primary &&
-    props.block &&
+    props.$block &&
     css`
       display: block;
       width: 100%;
@@ -83,9 +88,29 @@ export const ButtonStyle = css`
     css`
       padding: 10px 50px;
     `}
+ ${(props) =>
+    props.$widthTwentyPer &&
+    css`
+      width: 15%;
+    `}
+
+    ${(props) =>
+    props.$checkout &&
+    css`
+      width: 40%;
+      padding: 10px;
+    `}
+
   &:hover {
     transform: scale(0.95);
     transition: transform 0.3s ease;
+
+    ${(props) =>
+      props.$disabled &&
+      css`
+        transform: none;
+        transition: none;
+      `}
   }
 `
 const StyledButton = styled.button`
