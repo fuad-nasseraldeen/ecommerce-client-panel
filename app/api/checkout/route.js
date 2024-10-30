@@ -15,9 +15,9 @@ export async function POST(req) {
     let line_items = []
 
     for (const product of cart) {
-      const quantity = product.quantity
+      console.log(product)
       line_items.push({
-        quantity,
+        quantity: product.quantity,
         price_data: {
           currency: 'USD',
           product_data: { name: product.title },
