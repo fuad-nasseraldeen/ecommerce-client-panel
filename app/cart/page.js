@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import Center from '@/app/components/Center'
 import Button from '@/app/components/Button'
 import { useEffect, useState } from 'react'
-import axios from 'axios'
 import { goToPayment } from '@/app/util/checkoutUtils'
 import Table from '@/app/components/Table'
 import Input from '@/app/components/Input'
@@ -79,12 +78,12 @@ export default function CartPage() {
   const cart = useSelector((state) => state.cart.items)
   const checkoutDetails = useSelector((state) => state.checkout.details[0])
   const dispatch = useDispatch()
-  const [name, setName] = useState(checkoutDetails.name || '')
-  const [email, setEmail] = useState(checkoutDetails.email || '')
-  const [city, setCity] = useState(checkoutDetails.city || '')
-  const [postalCode, setPostalCode] = useState(checkoutDetails.postalCode || '')
-  const [streetAddress, setStreetAddress] = useState(checkoutDetails.streetAddress || '')
-  const [country, setCountry] = useState(checkoutDetails.country || '')
+  const [name, setName] = useState(checkoutDetails?.name || '')
+  const [email, setEmail] = useState(checkoutDetails?.email || '')
+  const [city, setCity] = useState(checkoutDetails?.city || '')
+  const [postalCode, setPostalCode] = useState(checkoutDetails?.postalCode || '')
+  const [streetAddress, setStreetAddress] = useState(checkoutDetails?.streetAddress || '')
+  const [country, setCountry] = useState(checkoutDetails?.country || '')
   const [isSuccess, setIsSuccess] = useState(false)
 
   useEffect(() => {
