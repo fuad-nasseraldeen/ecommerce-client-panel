@@ -1,8 +1,13 @@
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
-import Button from './Button'
-import { goToPayment } from '@/app/util/checkoutUtils'
+import { useState, useEffect } from 'react'
+import ButtonLink from './ButtonLink'
 import Center from '@/app/components/Center'
+
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+import { BlurOverlay } from '@/app/components/BlurOverlay'
+import { LoadingIndicator } from '@/app/components/Spinner'
 
 const CartSummaryWrapper = styled.div`
   position: fixed;
@@ -29,13 +34,13 @@ const CartInfo = styled.div`
   gap: 5px;
 `
 
-const Greeting = styled.div`
-  font-size: 16px;
-  font-weight: normal;
-  letter-spacing: 2px;
-`
-const Price = styled.div`
+const Entity = styled.div`
   font-weight: bold;
+`
+const EntityWrapper = styled.div`
+  display: flex;
+  gap: 3px;
+  align-items: center;
 `
 
 export function CartSummary() {
@@ -43,36 +48,43 @@ export function CartSummary() {
   const checkoutDetails = useSelector((state) => state.checkout.details[0])
   const total = cart?.reduce((acc, product) => acc + product.price * product.quantity, 0) || '0.00'
   const items = cart?.reduce((acc, product) => acc + product.quantity, 0) || 0
+  const [isLoading, setIsLoading] = useState(false)
 
-  async function handlePayment() {
-    if (checkoutDetails && Object.keys(checkoutDetails).length > 0) {
-      await goToPayment({
-        name: checkoutDetails.name,
-        email: checkoutDetails.email,
-        city: checkoutDetails.city,
-        postalCode: checkoutDetails.postalCode,
-        streetAddress: checkoutDetails.streetAddress,
-        country: checkoutDetails.country,
-        cart,
-      })
-    }
+  useEffect(() => {
+    isLoading ? NProgress.start() : NProgress.done()
+  }, [isLoading])
+
+  const handleCheckout = () => {
+    setIsLoading(true) // Start loading
+    setTimeout(() => {
+      // Navigate to checkout page or execute checkout function
+      window.location.href = '/cart' // Adjust this to your checkout page URL
+      setIsLoading(false) // Stop loading after delay
+    }, 2000)
   }
-
+  if (isLoading)
+    return (
+      <>
+        <BlurOverlay />
+        <LoadingIndicator />
+      </>
+    )
   return (
     <Center>
       <CartSummaryWrapper>
-        <Greeting>
-          {`Hi Mr ${checkoutDetails?.name}`}
-          <br />
-          {`${checkoutDetails?.email}`}
-        </Greeting>
+        <CartInfo>
+          <EntityWrapper>
+            Hi <Entity>{checkoutDetails?.name}</Entity>
+          </EntityWrapper>
+          <div>{checkoutDetails?.email}</div>
+        </CartInfo>
         <CartInfo>
           <div>Total items: {items}</div>
-          <Price>Total Price: ${parseFloat(total).toFixed(2)}</Price>
+          <Entity>Total Price: ${parseFloat(total).toFixed(2)}</Entity>
         </CartInfo>
-        <Button $checkout $primary $block onClick={handlePayment}>
+        <ButtonLink href={'/cart'} onClick={handleCheckout} $checkout $black $block>
           Proceed to Checkout
-        </Button>
+        </ButtonLink>
       </CartSummaryWrapper>
     </Center>
   )

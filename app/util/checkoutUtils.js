@@ -20,3 +20,7 @@ export async function goToPayment({ name, email, city, postalCode, streetAddress
     console.error('Payment failed', error)
   }
 }
+
+export function handleDisabledProceedToCheckout({ name, email, city, postalCode, streetAddress, country }) {
+  return !name || !email || !city || !postalCode || !streetAddress || !country
+}

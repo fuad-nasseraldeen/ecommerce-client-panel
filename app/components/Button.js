@@ -18,7 +18,10 @@ export const ButtonStyle = css`
   ${(props) =>
     props.$disabled &&
     css`
+      background-color: #d3d3d3;
+      color: #6c757d;
       cursor: not-allowed;
+      opacity: 0.6;
     `}
   ${(props) =>
     props.$white &&
@@ -98,7 +101,15 @@ export const ButtonStyle = css`
     props.$checkout &&
     css`
       width: 40%;
-      padding: 10px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: normal;
+      justify-content: center;
+      align-items: center;
+      border-radius: 5px;
+      background-color: #222;
+      border: 1px solid: #222;
+      color: #fff;
     `}
 
   &:hover {

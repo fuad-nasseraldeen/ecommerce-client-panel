@@ -1,12 +1,10 @@
 'use client'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchCategories, fetchProducts, fetchProductsByCategory } from '@/app/redux/productActions'
 import styled from 'styled-components'
-
 import Header from '@/app/header/page'
 import { applySort } from '@/app/util/util'
-
 import ProductsGrid from '@/app/components/ProductsGrid'
 import Sidebar from '@/app/components/SideBar'
 import Search from '@/app/components/Search'
@@ -14,93 +12,87 @@ import Title from '@/app/components/Title'
 import { useDebounce } from '@/app/hooks/useDebounce'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-import Center from '../components/Center'
+import Center from '@/app/components/Center'
+import Button from '@/app/components/Button'
 import { BlurOverlay } from '@/app/components/BlurOverlay'
 import { LoadingIndicator } from '@/app/components/Spinner'
 
 const Container = styled.div`
   display: grid;
+  grid-template-columns: 1fr; /* Mobile view, single column */
+  gap: 5px;
+  padding: 10px;
 
   @media screen and (min-width: 768px) {
     grid-template-columns: 0.4fr 1.6fr;
-    padding: 50px;
+    grid-template-rows: auto auto;
+    padding: 50px 50px 140px 50px;
     gap: 20px;
   }
-  grid-template-columns: 1fr;
-  padding: 10px;
-  gap: 5px;
-  padding-bottom: 140px;
 `
-const Content = styled.div`
-  padding-bottom: 140px;`
+const Content = styled.div``
+const ButtonWrapper = styled.div`
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+`
 
 export default function ProductsPage() {
   const dispatch = useDispatch()
-
   const { products, loading, error, productsByCategory } = useSelector((state) => state.products)
-
+  const productsPerPage = 10
   const [sortOption, setSortOption] = useState('sort1')
   const [selectedCategoryId, setSelectedCategoryId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [loadingProduct, setLoadingProduct] = useState(false)
-  const debouncedSearchQuery = useDebounce(searchQuery, 0.3) // 300ms debounce delay
+  const [currentPage, setCurrentPage] = useState(1)
 
-  useEffect(() => {
-    dispatch(fetchProducts())
-    dispatch(fetchCategories())
-  }, [dispatch])
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
+  const gridRef = useRef(null)
 
-  useEffect(() => {
-    if (loading) {
-      NProgress.start()
-    } else {
-      NProgress.done()
-    }
-  }, [loading])
-  useEffect(() => {
-    if (!loading && !loadingProduct) {
-      setLoadingProduct(false)
-    }
-  }, [loading, productsByCategory, products])
+  const numberOfPages = useMemo(() => {
+    const totalProducts = selectedCategoryId ? productsByCategory.length : products.length
+    return Math.ceil(totalProducts / productsPerPage)
+  }, [products, productsByCategory, selectedCategoryId])
+
+  const productsToDisplay = useMemo(() => {
+    const sourceProducts = selectedCategoryId ? productsByCategory : products
+    return sourceProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage)
+  }, [productsByCategory, selectedCategoryId, products, currentPage])
+
   const sortedProducts = useMemo(() => {
-    const productsToSort = productsByCategory?.length > 0 && selectedCategoryId ? productsByCategory : products
-
-    const filteredProducts = productsToSort.filter((product) => {
+    const filteredProducts = productsToDisplay.filter((product) => {
       return (
         product.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
         product.brand.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
         (product.tags && product.tags.some((tag) => tag.toLowerCase().includes(debouncedSearchQuery.toLowerCase())))
       )
     })
-
     return applySort(filteredProducts, sortOption)
-  }, [sortOption, products, productsByCategory, selectedCategoryId, searchQuery, debouncedSearchQuery])
+  }, [sortOption, productsToDisplay, debouncedSearchQuery])
 
-  const handleSortChange = (value) => {
-    setLoadingProduct(true)
-    setSortOption(value)
-    setTimeout(() => {
-      setLoadingProduct(false)
-    }, 1000)
-  }
+  useEffect(() => {
+    dispatch(fetchProducts())
+    dispatch(fetchCategories())
+  }, [])
+
+  useEffect(() => {
+    loading ? NProgress.start() : NProgress.done()
+  }, [loading])
+
+  const handleSortChange = (value) => setSortOption(value)
 
   const handleCategorySortChange = (categoryId) => {
-    setLoadingProduct(true)
     if (selectedCategoryId !== categoryId) {
       setSelectedCategoryId(categoryId)
       dispatch(fetchProductsByCategory(categoryId))
+      setCurrentPage(1)
     }
-    setTimeout(() => {
-      setLoadingProduct(false)
-    }, 1000)
-  }
-
-  const handleSearchChange = (query) => {
-    setSearchQuery(query)
   }
 
   const renderContent = () => {
-    if (loading || loadingProduct)
+    if (loading)
       return (
         <>
           <BlurOverlay />
@@ -108,12 +100,8 @@ export default function ProductsPage() {
         </>
       )
     if (error) return <div>Error: {error}</div>
-
-    if (sortedProducts.length === 0) {
-      return <div>No products available</div>
-    }
-
-    return <ProductsGrid products={sortedProducts} />
+    if (sortedProducts.length === 0) return <div>No products available</div>
+    return <ProductsGrid ref={gridRef} products={sortedProducts} />
   }
 
   return (
@@ -121,12 +109,26 @@ export default function ProductsPage() {
       <Header />
       <Center>
         <Title>All products</Title>
-        <Search onSearch={handleSearchChange} />
+        <Search onSearch={setSearchQuery} />
       </Center>
-
       <Container>
         <Sidebar handleSortChange={handleSortChange} handleCategorySort={handleCategorySortChange} />
         <Content>{renderContent()}</Content>
+        <ButtonWrapper>
+          <Button $black $disabled={currentPage === 1} onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}>
+            Previous
+          </Button>
+          <span aria-live='polite'>
+            Page {currentPage} of {numberOfPages}
+          </span>
+          <Button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, numberOfPages))}
+            $black
+            $disabled={currentPage === numberOfPages}
+          >
+            Next
+          </Button>
+        </ButtonWrapper>
       </Container>
     </>
   )

@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { goToPayment } from '@/app/util/checkoutUtils'
 import Table from '@/app/components/Table'
 import Input from '@/app/components/Input'
+import { handleDisabledProceedToCheckout } from '@/app/util/checkoutUtils'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { useDispatch, useSelector } from 'react-redux'
@@ -78,14 +79,15 @@ export default function CartPage() {
   const cart = useSelector((state) => state.cart.items)
   const checkoutDetails = useSelector((state) => state.checkout.details[0])
   const dispatch = useDispatch()
-  const [name, setName] = useState(checkoutDetails?.name || '')
-  const [email, setEmail] = useState(checkoutDetails?.email || '')
-  const [city, setCity] = useState(checkoutDetails?.city || '')
-  const [postalCode, setPostalCode] = useState(checkoutDetails?.postalCode || '')
-  const [streetAddress, setStreetAddress] = useState(checkoutDetails?.streetAddress || '')
-  const [country, setCountry] = useState(checkoutDetails?.country || '')
-  const [isSuccess, setIsSuccess] = useState(false)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [city, setCity] = useState('')
+  const [postalCode, setPostalCode] = useState('')
+  const [streetAddress, setStreetAddress] = useState('')
+  const [country, setCountry] = useState('')
 
+  const [isSuccess, setIsSuccess] = useState(false)
+  const [isDisabled, SetIsDisabled] = useState(true)
   useEffect(() => {
     if (typeof window === 'undefined') {
       return
@@ -98,6 +100,19 @@ export default function CartPage() {
       }
     }
   }, [])
+  useEffect(() => {
+    if (checkoutDetails) {
+      setName(checkoutDetails.name || '')
+      setEmail(checkoutDetails.email || '')
+      setCity(checkoutDetails.city || '')
+      setPostalCode(checkoutDetails.postalCode || '')
+      setStreetAddress(checkoutDetails.streetAddress || '')
+      setCountry(checkoutDetails.country || '')
+    }
+  }, [checkoutDetails])
+  useEffect(() => {
+    SetIsDisabled(handleDisabledProceedToCheckout({ name, email, city, postalCode, streetAddress, country }))
+  }, [name, email, city, postalCode, streetAddress, country])
 
   function addProduct(product) {
     NProgress.start()
@@ -252,7 +267,7 @@ export default function CartPage() {
                 name='country'
                 onChange={(ev) => handleChange('country', ev.target.value)}
               />
-              <Button $black $block onClick={handlePayment}>
+              <Button $black $block $disabled={isDisabled} onClick={handlePayment}>
                 Continue to payment
               </Button>
             </Box>

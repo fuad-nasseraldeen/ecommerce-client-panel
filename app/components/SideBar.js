@@ -49,18 +49,16 @@ export default function Sidebar({ handleSortChange, handleCategorySort }) {
   const [selectedCategory, setSelectedCategory] = useState('')
   const categories = useSelector((state) => state.products.categories)
 
-  // Handle sort change
   const handleSort = (e) => {
     const { value } = e.target
     setSelectedSort(value)
-    handleSortChange(value) // Pass value directly
+    handleSortChange(value)
   }
 
-  // Handle category sort change
   const handleCategory = (e) => {
     const { value } = e.target
     setSelectedCategory(value)
-    handleCategorySort(value) // Pass value directly
+    handleCategorySort(value)
   }
 
   return (
