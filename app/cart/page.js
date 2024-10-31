@@ -127,6 +127,7 @@ export default function CartPage() {
     NProgress.done()
   }
   async function handlePayment() {
+    await new Promise((resolve) => setTimeout(resolve, 1000)) // Delay for 1 second
     await goToPayment({ name, email, city, postalCode, streetAddress, country, cart })
   }
 
