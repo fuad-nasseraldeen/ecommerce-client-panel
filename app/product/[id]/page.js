@@ -16,8 +16,7 @@ import ProductImages from '@/app/components/ProductImages'
 import Button from '@/app/components/Button'
 import Title from '@/app/components/Title'
 import flyToCart from '@/app/components/FlyToCart'
-import { BlurOverlay } from '@/app/components/BlurOverlay'
-import { LoadingIndicator } from '@/app/components/Spinner'
+import Loading from '@/app/components/Loading'
 import { addProductToCart } from '@/app/redux/cartActions'
 import { fetchProducts } from '@/app/redux/productActions'
 
@@ -30,29 +29,35 @@ const ColWrapper = styled.div`
   gap: 40px;
   margin: 40px 0;
 `
+
 const PriceRow = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding-top: 20px;
 `
+
 const Price = styled.span`
   font-size: 1.4rem;
   font-weight: 600;
   letter-spacing: 0.06rem;
 `
+
 const Desc = styled.div`
   letter-spacing: 0.05rem;
 `
+
 const Info = styled.div`
   padding-top: 20px;
 `
+
 const Brand = styled.span`
   font-size: 1rem;
   font-weight: 500;
   display: block;
   margin-top: 20px;
 `
+
 const Tags = styled.div`
   margin-top: 20px;
   span {
@@ -63,16 +68,19 @@ const Tags = styled.div`
     margin: 5px;
   }
 `
+
 const ReturnPolicy = styled.div`
   margin-top: 20px;
   font-size: 0.9rem;
   color: #666;
 `
+
 const ShippingInfo = styled.div`
   margin-top: 10px;
   font-size: 0.9rem;
   color: #666;
 `
+
 export default function ProductPage() {
   const params = useParams()
   const { id } = params
@@ -84,9 +92,9 @@ export default function ProductPage() {
 
   const dispatch = useDispatch()
 
-  const whiteBoxRef = useRef(null)
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
+  const buttonRef = useRef(null)
+  const isInViewRef = useRef(null)
+  const isInView = useInView(isInViewRef, { once: true })
 
   useEffect(() => {
     if (loading) {
@@ -95,38 +103,47 @@ export default function ProductPage() {
       NProgress.done()
     }
   }, [loading])
+
   useEffect(() => {
-    if (product?.length === 0 || products?.length === 0) {
+    if (!product && products.length === 0) {
       dispatch(fetchProducts())
     }
-  }, [product, products])
+  }, [product, products, dispatch])
 
-  const handleAddProductToCart = (e, prductId) => {
-    flyToCart(e, whiteBoxRef.current)
-    dispatch(addProductToCart(prductId))
-  }
-  if (loading)
-    return (
-      <>
-        <BlurOverlay />
-        <LoadingIndicator />
-      </>
-    )
+  const handleAddProductToCart = async (e, productId) => {
+    NProgress.start()
 
-  if (error) {
-    return <div>Error: {error}</div>
+    if (buttonRef.current) {
+      flyToCart(e, buttonRef.current)
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    dispatch(addProductToCart(productId))
+    NProgress.done()
   }
+
   return (
     <>
       <Header />
       <motion.div
-        ref={ref}
+        ref={isInViewRef}
         initial={{ opacity: 0, y: 50 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.5 }}
       >
         <Center>
           <ColWrapper>
+            {error && (
+              <Center>
+                <div>Error: {error}</div>
+              </Center>
+            )}
+            {loading && (
+              <Center>
+                <Loading />
+              </Center>
+            )}
             <ProductImages images={product?.images} />
             <Info>
               <Title>{product?.title}</Title>
@@ -143,8 +160,8 @@ export default function ProductPage() {
                 <div>
                   <Price>${product?.price}</Price>
                 </div>
-                <div ref={whiteBoxRef}>
-                  <Button $primary $product onClick={(e) => handleAddProductToCart(e, product)}>
+                <div>
+                  <Button ref={buttonRef} $primary $product onClick={(e) => handleAddProductToCart(e, product)}>
                     <CartIcon />
                     Add to cart
                   </Button>

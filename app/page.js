@@ -6,10 +6,9 @@ import { fetchProducts, fetchNewArrivals, fetchCategories, fetchHomePageProduct 
 import NewProducts from '@/app/newProducts/NewProducts'
 import ShopByCategory from '@/app/components/ShopByCategory'
 import Featured from '@/app/featured/page'
-import { BlurOverlay } from '@/app/components/BlurOverlay'
-import { LoadingIndicator } from '@/app/components/Spinner'
 import { getRandomProduct } from '@/app/util/generateRandomProduct'
-
+import Loading from '@/app/components/Loading'
+import Center from '@/app/components/Center'
 export default function HomePage() {
   const dispatch = useDispatch()
   const { products, newArrivals, categories, homePageProduct, loading } = useSelector((state) => state.products)
@@ -33,10 +32,9 @@ export default function HomePage() {
 
   if (loading)
     return (
-      <>
-        <BlurOverlay />
-        <LoadingIndicator />
-      </>
+      <Center>
+        <Loading/>
+      </Center>
     )
 
   return (

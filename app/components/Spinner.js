@@ -15,10 +15,21 @@ const Spinner = styled.div`
   }
 `
 
+const SpinnerWrapper = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
 export const LoadingIndicator = () => {
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+    <SpinnerWrapper>
       <Spinner />
-    </div>
+    </SpinnerWrapper>
   )
 }

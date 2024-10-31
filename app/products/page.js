@@ -14,8 +14,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import Center from '@/app/components/Center'
 import Button from '@/app/components/Button'
-import { BlurOverlay } from '@/app/components/BlurOverlay'
-import { LoadingIndicator } from '@/app/components/Spinner'
+import Loading from '@/app/components/Loading'
 
 const Container = styled.div`
   display: grid;
@@ -92,15 +91,10 @@ export default function ProductsPage() {
   }
 
   const renderContent = () => {
-    if (loading)
-      return (
-        <>
-          <BlurOverlay />
-          <LoadingIndicator />
-        </>
-      )
-    if (error) return <div>Error: {error}</div>
-    if (sortedProducts.length === 0) return <div>No products available</div>
+    if (error) return <Center>
+      <div>Error: {error}</div>
+    </Center>
+    if (sortedProducts?.length === 0) return <div>No products available</div>
     return <ProductsGrid ref={gridRef} products={sortedProducts} />
   }
 

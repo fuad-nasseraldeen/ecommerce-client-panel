@@ -6,15 +6,14 @@ import Center from '@/app/components/Center'
 
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-import { BlurOverlay } from '@/app/components/BlurOverlay'
-import { LoadingIndicator } from '@/app/components/Spinner'
+import Loading from '@/app/components/Loading'
 
 const CartSummaryWrapper = styled.div`
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  background-color: #aaa;
+  background-color: rgba(170, 170, 170, 0.95);
   border-top: 1px solid #e5e5e5;
   padding: 20px 50px;
   display: grid;
@@ -55,27 +54,19 @@ export function CartSummary() {
   }, [isLoading])
 
   const handleCheckout = () => {
-    setIsLoading(true) // Start loading
+    setIsLoading(true)
     setTimeout(() => {
-      // Navigate to checkout page or execute checkout function
-      window.location.href = '/cart' // Adjust this to your checkout page URL
-      setIsLoading(false) // Stop loading after delay
-    }, 2000)
+      window.location.href = '/cart'
+      setIsLoading(false)
+    }, 1000)
   }
-  if (isLoading)
-    return (
-      <>
-        <BlurOverlay />
-        <LoadingIndicator />
-      </>
-    )
   return (
     <Center>
       <CartSummaryWrapper>
         <CartInfo>
-          <EntityWrapper>
+          {checkoutDetails?.name && <EntityWrapper>
             Hi <Entity>{checkoutDetails?.name}</Entity>
-          </EntityWrapper>
+          </EntityWrapper>}
           <div>{checkoutDetails?.email}</div>
         </CartInfo>
         <CartInfo>
@@ -85,6 +76,11 @@ export function CartSummary() {
         <ButtonLink href={'/cart'} onClick={handleCheckout} $checkout $black $block>
           Proceed to Checkout
         </ButtonLink>
+        {
+        isLoading && <Center>
+        <Loading />
+      </Center>
+      }
       </CartSummaryWrapper>
     </Center>
   )

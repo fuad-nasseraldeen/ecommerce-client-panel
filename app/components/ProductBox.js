@@ -7,10 +7,12 @@ import flyToCart from './FlyToCart'
 import StarRating from '@/app/icons/StarRating'
 import MoreDetails from '@/app/icons/MoreDetails'
 import ResponsiveDiscountStar from '@/app/components/ResponsiveDiscountStart'
-import { BlurOverlay } from '@/app/components/BlurOverlay'
-import { LoadingIndicator } from '@/app/components/Spinner'
+import Loading from '@/app/components/Loading'
 import { useDispatch } from 'react-redux'
 import { addProductToCart } from '../redux/cartActions'
+import Center from '@/app/components/Center'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 
 const ProductWrapper = styled.div`
   text-decoration: none;
@@ -134,7 +136,7 @@ const MoreDetailsHref = styled(Link)`
 
 export default function ProductBox({ product }) {
   const { _id, title, price, images, rating, discountPercentage } = product
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const dispatch = useDispatch()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
@@ -142,21 +144,27 @@ export default function ProductBox({ product }) {
   const url = '/product/' + _id
   const whiteBoxRef = useRef(null)
 
-  const addToCart = (e) => {
-    flyToCart(e, whiteBoxRef.current)
-    dispatch(addProductToCart(product))
-  }
+const addToCart = async (e) => {
+  NProgress.start()
+  flyToCart(e, whiteBoxRef.current)
+
+await new Promise((resolve) => {
+  setTimeout(resolve, 1000)
+})
+
+  dispatch(addProductToCart(product))
+  NProgress.done()
+}
+
 
   const goToProductSpecification = () => {
-    setLoading(true)
+    setIsLoading(true)
+    NProgress.start()
+    setTimeout(() => {
+      NProgress.done()
+      setIsLoading(false)
+    }, 1000)
   }
-  if (loading)
-    return (
-      <>
-        <BlurOverlay />
-        <LoadingIndicator />
-      </>
-    )
   return (
     <motion.div
       ref={ref}
@@ -165,6 +173,7 @@ export default function ProductBox({ product }) {
       transition={{ duration: 0.5 }}
     >
       <ProductWrapper>
+        {isLoading && <Loading/>}
         <ImageContainer>
           <img ref={whiteBoxRef} src={images[0]} alt={title} />
           <ButtonContainer className='overlay'>

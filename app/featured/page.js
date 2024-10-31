@@ -96,7 +96,7 @@ export default function Featured({ product }) {
                 </ButtonsWrapper>
               </div>
             </Column>
-            <ColumnsWrapper>{product && product.thumbnail && <img src={product.thumbnail} alt='' />}</ColumnsWrapper>
+            <ColumnsWrapper>{product?.thumbnail && <img src={product?.thumbnail} alt='' />}</ColumnsWrapper>
           </ColumnsWrapper>
         </Center>
       </Bg>

@@ -1,9 +1,9 @@
 'use client'
 import styled from 'styled-components'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { categoriesImg } from '../util/util'
-import { fetchProductsByCategory, fetchProducts } from '../redux/productActions'
+import { fetchProductsByCategory } from '../redux/productActions'
 import Link from 'next/link'
 
 import NProgress from 'nprogress'
@@ -126,17 +126,10 @@ const ProductTitle = styled.h2`
 
 export default function ShopByCategory() {
   const categories = useSelector((state) => state.products.categories)
-
-  const products = useSelector((state) => state.products.products)
   const loading = useSelector((state) => state.products.loading)
   const error = useSelector((state) => state.products.error)
 
   const dispatch = useDispatch()
-  const [selectedCategory, setSelectedCategory] = useState('')
-
-  if (!categories || categories.length === 0) {
-    return <div>No categories available.</div>
-  }
 
   useEffect(() => {
     if (loading) {
@@ -146,9 +139,6 @@ export default function ShopByCategory() {
     }
   }, [loading])
 
-  if (error) {
-    return <div>Error: {error}</div>
-  }
   const handleSelectedCategory = (categoryId) => {
     dispatch(fetchProductsByCategory(categoryId))
   }
@@ -160,18 +150,21 @@ export default function ShopByCategory() {
           <Title>Shop By Category</Title>
         </TitleWrapper>
         <ScrollContainer>
-          {categories.map((category) => {
+          {error && <div>Error: {error}</div>}
+          {(!categories || categories.length === 0) &&
+            <div>No categories available.</div>
+          }
+          {categories?.map((category) => {
             // Find the corresponding image
-            const categoryImg = categoriesImg.find((_category) => _category.name === category.name)
-            const imgSrc = categoryImg ? categoryImg.img : '/path/to/placeholder.png' // Use a placeholder image if not found
-            const url = '/products/category/' + category._id
+            const categoryImg = categoriesImg?.find((_category) => _category.name === category?.name)
+            const url = '/products/category/' + category?._id
             return (
-              <ProductWrapper key={category._id}>
-                <ProductItemWrapper href={url} onClick={() => handleSelectedCategory(category._id)}>
+              <ProductWrapper key={category?._id}>
+                <ProductItemWrapper href={url} onClick={() => handleSelectedCategory(category?._id)}>
                   <ProductImageWrapper>
-                    <ProductImage src={imgSrc} alt={category.name} loading='lazy' />
+                    <ProductImage src={categoryImg?.img} alt={category?.name} loading='lazy' />
                   </ProductImageWrapper>
-                  <ProductTitle>{category.name}</ProductTitle>
+                  <ProductTitle>{category?.name}</ProductTitle>
                 </ProductItemWrapper>
               </ProductWrapper>
             )

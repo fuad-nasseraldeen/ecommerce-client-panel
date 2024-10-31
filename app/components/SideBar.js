@@ -66,7 +66,7 @@ export default function Sidebar({ handleSortChange, handleCategorySort }) {
       <SidebarContainer>
         <FilterTitle>Sort By</FilterTitle>
         <SortOptionList>
-          {sortByOptions.map((option) => (
+          {sortByOptions?.map((option) => (
             <SortOptionItem key={option.id}>
               <input
                 type='radio'

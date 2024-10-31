@@ -1,16 +1,15 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import styled, { css } from 'styled-components'
 import Center from '@/app/components/Center'
-import { BlurOverlay } from '@/app/components/BlurOverlay'
-import { LoadingIndicator } from '@/app/components/Spinner'
+import Loading from '@/app/components/Loading'
 import { useSelector } from 'react-redux'
 import BarsIcon from '@/app/icons/Bars'
 
 const StyledHeader = styled.header`
-  background-color: ${(props) => (props.$isScrolled ? '#aaa' : '#222')};
+  background-color: ${(props) => (props.$isScrolled ? 'rgba(170, 170, 170, 0.95)' : '#222')};
 
   position: sticky;
   top: 0;
@@ -128,62 +127,56 @@ const NavButton = styled.button`
 
 export default function Header() {
   const pathname = usePathname()
+  const router = useRouter()
   const cart = useSelector((state) => state.cart.items)
   const [mobileNavActive, setMobileNavActive] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-
+ const [loading, setLoading] = useState(false)
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 0)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  useEffect(() => {
-    return () => {
-      setTimeout(() => setLoading(false), 2000)
+    const handleNavigation = (href) => {
+      setLoading(true)
+      setTimeout(() => {
+        router.push(href)
+      }, 1000)
     }
-  }, [loading])
-
-  if (loading)
-    return (
-      <>
-        <BlurOverlay />
-        <LoadingIndicator />
-      </>
-    )
-
-  const backToHomePage = () => setLoading(true)
-
   return (
+<>
     <StyledHeader $isScrolled={isScrolled} $mobileNavActive={mobileNavActive}>
       <Center>
         <Wrapper>
-          <Logo href={'/'} onClick={backToHomePage} $isScrolled={isScrolled}>
+          <Logo href={'/'} onClick={() => handleNavigation('/')} $isScrolled={isScrolled}>
             <img src={'megaStore1.png'} alt='megaStore' />
           </Logo>
           <StyledNav $mobileNavActive={mobileNavActive} $isScrolled={isScrolled}>
             <NavLink
+              onClick={() => handleNavigation('/')}
               $isScrolled={isScrolled}
               $mobileNavActive={mobileNavActive}
               $isActive={pathname === '/'}
-              href={'/'}
+              href={'#'}
             >
               Home
             </NavLink>
             <NavLink
+              onClick={() => handleNavigation('/products')}
               $isScrolled={isScrolled}
               $mobileNavActive={mobileNavActive}
               $isActive={pathname === '/products'}
-              href={'/products'}
+              href={'#'}
             >
               All products
             </NavLink>
             <NavLink
+              onClick={() => handleNavigation('/cart')}
               $isScrolled={isScrolled}
               $mobileNavActive={mobileNavActive}
               $isActive={pathname === '/cart'}
-              href={'/cart'}
+              href={'#'}
             >
               Cart ({cart?.reduce((acc, product) => acc + product.quantity, 0) || 0})
             </NavLink>
@@ -194,5 +187,9 @@ export default function Header() {
         </Wrapper>
       </Center>
     </StyledHeader>
+    <Center>
+      {loading && <Loading />}
+      </Center>
+      </>
   )
 }
