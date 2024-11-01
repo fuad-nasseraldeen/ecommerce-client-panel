@@ -36,6 +36,10 @@ const Logo = styled(Link)`
     box-shadow: ${(props) =>
       props.$isScrolled ? '0px 6px 12px rgba(0, 0, 0, 0.4)' : '0px 6px 12px rgba(255, 255, 255, 0.4)'};
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    @media screen and (max-width: 600px) {
+    height: 35px;
+  }
   }
 
   &:hover img {
@@ -56,6 +60,10 @@ const Wrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 20px 0;
+
+  @media screen and (max-width: 600px) {
+    padding: 8px;
+  }
 `
 
 const StyledNav = styled.nav`

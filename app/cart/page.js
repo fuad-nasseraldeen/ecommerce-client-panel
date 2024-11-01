@@ -8,7 +8,7 @@ import CartItemsBox from '@/app/components/CartItemsBox'
 import OrderForm from '@/app/components/OrderForm'
 import RetryMessage from '@/app/components/RetryMessage'
 import ThankYouMessage from '@/app/components/ThankYouMessage'
-import { handleDisabledProceedToCheckout } from '@/app/util/checkoutUtils'
+import { handleDisabledProceedToCheckout, isValidEmail } from '@/app/util/checkoutUtils'
 import Loading from '@/app/components/Loading'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
@@ -32,14 +32,21 @@ const Box = styled.div`
   border-radius: 10px;
   padding: 30px;
 `
-
+const checkoutDetailsErrors = {
+  name: '',
+  email: '',
+  city: '',
+  streetAddress: '',
+  postalCode: '',
+  country: ''
+}
 export default function CartPage() {
   const dispatch = useDispatch()
   const cart = useSelector((state) => state.cart.items)
   const error = useSelector((state) => state.checkout.error)
   const loading = useSelector((state) => state.checkout.loading)
   const checkoutDetails = useSelector((state) => state.checkout.details[0])
-
+  const [errors, setErrors] = useState(Object.assign({}, checkoutDetailsErrors))
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [city, setCity] = useState('')
@@ -50,7 +57,7 @@ export default function CartPage() {
   const [isSuccess, setIsSuccess] = useState(false)
   const [isDisabled, SetIsDisabled] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
-
+const [tryAgainFlag, setTryAgainFlag] = useState(false)
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (window?.location.href.includes('success')) {
@@ -77,6 +84,12 @@ export default function CartPage() {
     SetIsDisabled(handleDisabledProceedToCheckout({ name, email, city, postalCode, streetAddress, country }))
   }, [name, email, city, postalCode, streetAddress, country])
 
+  useEffect(() => {
+    const currentErrors = validateFields({ name, email, city, postalCode, streetAddress, country })
+    setErrors(currentErrors)
+  }, [name, email, city, postalCode, streetAddress, country])
+
+
   const addProduct = useCallback(
     (product) => {
       NProgress.start()
@@ -94,20 +107,40 @@ export default function CartPage() {
     },
     [dispatch],
   )
+const validateFields = (fields) => {
+  const validationErrors = {}
+    Object.keys(checkoutDetailsErrors).forEach((key) => {
+      if (!fields[key]) validationErrors[key] = `Field ${key} can't be empty`
+    })
+  if (!isValidEmail(fields?.email)) validationErrors.email = 'Please enter a valid email address'
+  return validationErrors
+}
 
-  const handlePayment = async () => {
+  const handlePayment = useCallback(async () => {
+    setTryAgainFlag(true)
+    const hasEmptyFields = !checkoutDetails || Object.values(checkoutDetails).some((field) => !field)
+    const isEmailValid = isValidEmail(email)
+
+    if (hasEmptyFields || !isEmailValid) {
+      setErrors(validateFields(checkoutDetails))
+      setTryAgainFlag(false)
+      return
+    }
+
     setIsLoading(true)
     try {
       await dispatch(fetchPaymentCart({ name, email, city, postalCode, streetAddress, country, cart }))
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [dispatch, email, city, postalCode, streetAddress, country, cart, errors, checkoutDetails])
+
 
   const total = cart.reduce((acc, product) => acc + product.price * product.quantity, 0).toFixed(2)
 
   const handleChange = useCallback(
     (key, value) => {
+      setErrors({...errors, [key]: ''})
       switch (key) {
         case 'name':
           setName(value)
@@ -142,6 +175,19 @@ export default function CartPage() {
         <Loading />
       </Center>
     )
+const renderOrderForm = () => {
+  if (error && tryAgainFlag) return <RetryMessage onRetry={() => setTryAgainFlag(false)} />
+  return (
+    <OrderForm
+      cart={cart}
+      fields={{ name, email, city, postalCode, streetAddress, country }}
+      onChange={handleChange}
+      onPayment={handlePayment}
+      isDisabled={isDisabled}
+      errors={errors}
+    />
+  )
+}
 
   return (
     <>
@@ -152,17 +198,7 @@ export default function CartPage() {
           {!!cart.length && (
             <Box>
               <h2>Order information</h2>
-              {error ? (
-                <RetryMessage onRetry={handlePayment} />
-              ) : (
-                  <OrderForm
-                    cart={cart}
-                  fields={{ name, email, city, postalCode, streetAddress, country }}
-                  onChange={handleChange}
-                  onPayment={handlePayment}
-                  isDisabled={isDisabled}
-                />
-              )}
+              {renderOrderForm()}
             </Box>
           )}
         </ColumnsWrapper>

@@ -160,8 +160,8 @@ export default function ProductPage() {
                 <div>
                   <Price>${product?.price}</Price>
                 </div>
-                <div>
-                  <Button ref={buttonRef} $primary $product onClick={(e) => handleAddProductToCart(e, product)}>
+                <div ref={buttonRef} >
+                  <Button $primary $product onClick={(e) => handleAddProductToCart(e, product)}>
                     <CartIcon />
                     Add to cart
                   </Button>
