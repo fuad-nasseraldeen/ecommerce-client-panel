@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // Styled components
 const ImageContainer = styled.div`
@@ -48,7 +48,11 @@ const BigImageWrapper = styled.div`
 `
 
 export default function ProductImages({ images }) {
-  const [activeImage, setActiveImage] = useState(images?.[0])
+  const [activeImage, setActiveImage] = useState('')
+  
+  useEffect(() => {
+    if (images?.length > 0 ) setActiveImage(images?.[0])
+  }, [images])
 
   return (
     <ImageContainer>

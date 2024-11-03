@@ -177,7 +177,7 @@ await new Promise((resolve) => {
         <ImageContainer>
           <img ref={whiteBoxRef} src={images[0]} alt={title} />
           <ButtonContainer className='overlay'>
-            <button onClick={(e) => addToCart(e)}>🛒 add to cart</button>
+            <button onClick={(e) => addToCart(e)}><span>&#128722;</span>add to cart</button>
             <MoreDetailsHref href={url}>
               <button onClick={goToProductSpecification}>
                 <MoreDetails /> more details

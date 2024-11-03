@@ -1,7 +1,6 @@
 'use client'
 import styled from 'styled-components'
 import ProductBox from '@/app/components/ProductBox'
-import { useEffect, useState } from 'react'
 
 const StyledProductsGrid = styled.div`
   display: grid;

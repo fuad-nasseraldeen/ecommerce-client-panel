@@ -180,6 +180,7 @@ export default function Header() {
               All products
             </NavLink>
             <NavLink
+            className='cart-icon'
               onClick={() => handleNavigation('/cart')}
               $isScrolled={isScrolled}
               $mobileNavActive={mobileNavActive}

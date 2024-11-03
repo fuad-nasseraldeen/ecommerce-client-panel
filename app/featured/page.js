@@ -71,6 +71,7 @@ export default function Featured({ product }) {
     flyToCart(e, whiteBoxRef.current)
     dispatch(addProductToCart(product))
   }
+
   return (
     <motion.div
       ref={ref}
@@ -80,8 +81,8 @@ export default function Featured({ product }) {
     >
       <Bg>
         <Center>
-          <ColumnsWrapper ref={whiteBoxRef}>
-            <Column>
+          <ColumnsWrapper>
+            <Column >
               <div>
                 <Title>{product?.title}</Title>
                 <Desc>{product?.description}</Desc>
@@ -89,14 +90,14 @@ export default function Featured({ product }) {
                   <ButtonLink href={'/product/' + product?._id} $white $outline>
                     Read More
                   </ButtonLink>
-                  <Button $white onClick={(e) => addToCart(e, product)}>
+                  <Button  $white onClick={(e) => addToCart(e, product)}>
                     <CartIcon />
                     Add to cart
                   </Button>
                 </ButtonsWrapper>
               </div>
             </Column>
-            <ColumnsWrapper>{product?.thumbnail && <img src={product?.thumbnail} alt='' />}</ColumnsWrapper>
+            <Column>{product?.thumbnail && <img ref={whiteBoxRef} src={product?.thumbnail} alt='' />}</Column>
           </ColumnsWrapper>
         </Center>
       </Bg>
