@@ -1,38 +1,59 @@
 export default function flyToCart(e, whiteBoxElement) {
-  const productRect = whiteBoxElement.getBoundingClientRect() // Get the dimensions of the product
-  const cartIcon = document.querySelector('.cart-icon') // Select the cart icon
+  if (typeof window === 'undefined' || typeof document === 'undefined') return
 
-  if (!cartIcon) return // If cart icon does not exist, exit
+  try {
+    const cartIcon = document.querySelector('.cart-icon') // Select the cart icon
+    if (!cartIcon || typeof cartIcon.getBoundingClientRect !== 'function') return
 
-  // Clone the WhiteBox element to animate
-  const flyingBox = whiteBoxElement.cloneNode(true)
-  document.body.appendChild(flyingBox)
+    const fallbackElement =
+      e?.currentTarget?.closest?.('[data-fly-source]') ||
+      e?.currentTarget?.closest?.('article') ||
+      e?.currentTarget?.closest?.('button') ||
+      e?.currentTarget
 
-  // Set initial position and styles of the flying element
-  flyingBox.style.position = 'fixed'
-  flyingBox.style.top = `${productRect.top}px`
-  flyingBox.style.left = `${productRect.left}px`
-  flyingBox.style.width = `${productRect.width}px`
-  flyingBox.style.height = `${productRect.height}px`
-  flyingBox.style.transition = 'all 1s ease'
-  flyingBox.style.zIndex = '9999'
-  flyingBox.style.pointerEvents = 'none'
+    const sourceElement =
+      whiteBoxElement && typeof whiteBoxElement.getBoundingClientRect === 'function' ? whiteBoxElement : fallbackElement
 
-  // Calculate the destination position (cart icon's position)
-  const cartRect = cartIcon.getBoundingClientRect()
-  const destX = cartRect.left + cartRect.width / 2 - productRect.width / 2 // Adjust for horizontal centering
-  const destY = cartRect.top + cartRect.height / 2 - productRect.height / 2 // Adjust for vertical centering
+    if (!sourceElement || typeof sourceElement.getBoundingClientRect !== 'function') return
 
-  // Trigger the animation by changing the position and size
-  requestAnimationFrame(() => {
-    flyingBox.style.top = `${destY}px` // Move to the cart icon's Y position
-    flyingBox.style.left = `${destX}px` // Move to the cart icon's X position
-    flyingBox.style.transform = 'scale(0.2)' // Adjust scale as needed
-    flyingBox.style.opacity = '0' // Fade out for smooth transition
-  })
+    const productRect = sourceElement.getBoundingClientRect()
+    const cartRect = cartIcon.getBoundingClientRect()
 
-  // Remove the flying box after animation completes
-  flyingBox.addEventListener('transitionend', () => {
-    flyingBox.remove()
-  })
+    // Clone the source element to animate
+    const flyingBox = sourceElement.cloneNode?.(true)
+    if (!flyingBox) return
+    document.body.appendChild(flyingBox)
+
+    // Set initial position and styles of the flying element
+    flyingBox.style.position = 'fixed'
+    flyingBox.style.top = `${productRect.top}px`
+    flyingBox.style.left = `${productRect.left}px`
+    flyingBox.style.width = `${productRect.width}px`
+    flyingBox.style.height = `${productRect.height}px`
+    flyingBox.style.transition = 'all 1s ease'
+    flyingBox.style.zIndex = '9999'
+    flyingBox.style.pointerEvents = 'none'
+
+    // Calculate the destination position (cart icon's position)
+    const destX = cartRect.left + cartRect.width / 2 - productRect.width / 2
+    const destY = cartRect.top + cartRect.height / 2 - productRect.height / 2
+
+    // Trigger the animation by changing the position and size
+    requestAnimationFrame(() => {
+      flyingBox.style.top = `${destY}px`
+      flyingBox.style.left = `${destX}px`
+      flyingBox.style.transform = 'scale(0.2)'
+      flyingBox.style.opacity = '0'
+    })
+
+    // Remove the flying box after animation completes
+    flyingBox.addEventListener('transitionend', () => {
+      flyingBox.remove()
+    })
+
+    // Fallback cleanup in case transitionend doesn't fire
+    setTimeout(() => flyingBox.remove(), 1300)
+  } catch (error) {
+    console.error('flyToCart animation skipped:', error)
+  }
 }

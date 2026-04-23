@@ -1,0 +1,38 @@
+[Error: ENOENT: no such file or directory, stat 'C:\Users\fuads\Documents\PROJECTS\ecommerce-client-panel\.next\cache\webpack\server-development\0.pack.gz'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: 'C:\\Users\\fuads\\Documents\\PROJECTS\\ecommerce-client-panel\\.next\\cache\\webpack\\server-development\\0.pack.gz'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, stat 'C:\Users\fuads\Documents\PROJECTS\ecommerce-client-panel\.next\cache\webpack\server-development\0.pack.gz'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: 'C:\\Users\\fuads\\Documents\\PROJECTS\\ecommerce-client-panel\\.next\\cache\\webpack\\server-development\\0.pack.gz'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, stat 'C:\Users\fuads\Documents\PROJECTS\ecommerce-client-panel\.next\cache\webpack\server-development\0.pack.gz'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: 'C:\\Users\\fuads\\Documents\\PROJECTS\\ecommerce-client-panel\\.next\\cache\\webpack\\server-development\\0.pack.gz'
+}
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, stat 'C:\Users\fuads\Documents\PROJECTS\ecommerce-client-panel\.next\cache\webpack\server-development\0.pack.gz'
+[Error: ENOENT: no such file or directory, stat 'C:\Users\fuads\Documents\PROJECTS\ecommerce-client-panel\.next\cache\webpack\client-development\1.pack.gz'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: 'C:\\Users\\fuads\\Documents\\PROJECTS\\ecommerce-client-panel\\.next\\cache\\webpack\\client-development\\1.pack.gz'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, stat 'C:\Users\fuads\Documents\PROJECTS\ecommerce-client-panel\.next\cache\webpack\client-development\1.pack.gz'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: 'C:\\Users\\fuads\\Documents\\PROJECTS\\ecommerce-client-panel\\.next\\cache\\webpack\\client-development\\1.pack.gz'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, stat 'C:\Users\fuads\Documents\PROJECTS\ecommerce-client-panel\.next\cache\webpack\client-development\1.pack.gz'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: 'C:\\Users\\fuads\\Documents\\PROJECTS\\ecommerce-client-panel\\.next\\cache\\webpack\\client-development\\1.pack.gz'
+}
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, stat 'C:\Users\fuads\Documents\PROJECTS\ecommerce-client-panel\.next\cache\webpack\client-development\1.pack.gz'

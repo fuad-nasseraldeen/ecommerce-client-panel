@@ -1,0 +1,15 @@
+
+> ecommerce-client-panel@0.1.0 dev
+> next dev --port 3011
+
+  ▲ Next.js 14.2.15
+  - Local:        http://localhost:3011
+  - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 37.5s
+ ○ Compiling / ...
+ ✓ Compiled / in 25.1s (1400 modules)
+ GET / 200 in 26466ms
+ ✓ Compiled in 821ms (1405 modules)
+ ✓ Compiled in 442ms (1410 modules)

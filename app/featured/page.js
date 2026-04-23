@@ -70,6 +70,15 @@ const ProductImage = styled.img`
   filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.35));
 `
 
+const ProductImagePlaceholder = styled.div`
+  width: 100%;
+  min-height: 240px;
+  border-radius: var(--radius-md);
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.17) 0%, rgba(255, 255, 255, 0.03) 45%, transparent 70%),
+    linear-gradient(140deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`
+
 export default function Featured({ product }) {
   const dispatch = useDispatch()
   const whiteBoxRef = useRef(null)
@@ -77,6 +86,7 @@ export default function Featured({ product }) {
   const isInView = useInView(ref, { once: true })
 
   const productUrl = useMemo(() => (product?._id ? `/product/${product._id}` : '/products'), [product?._id])
+  const featuredImage = product?.thumbnail || product?.images?.[0] || null
 
   const addToCart = (e) => {
     if (!product) return
@@ -114,7 +124,11 @@ export default function Featured({ product }) {
                 </div>
               </Column>
               <Column>
-                {product?.thumbnail && <ProductImage ref={whiteBoxRef} src={product.thumbnail} alt={product.title || 'Featured product'} />}
+                {featuredImage ? (
+                  <ProductImage ref={whiteBoxRef} src={featuredImage} alt={product.title || 'Featured product'} />
+                ) : (
+                  <ProductImagePlaceholder ref={whiteBoxRef} />
+                )}
               </Column>
             </ColumnsWrapper>
           </Surface>
