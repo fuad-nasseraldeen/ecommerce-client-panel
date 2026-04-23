@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { mongooseConnect } from '@/lib/mongoose'
+import { getDbErrorMessage, mongooseConnect } from '@/lib/mongoose'
 import { Order } from '@/models/Order'
 import Stripe from 'stripe'
 
@@ -7,7 +7,11 @@ const stripe = new Stripe(process.env.STRIPE_SK)
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET
 
 export async function POST(req) {
-  await mongooseConnect()
+  try {
+    await mongooseConnect()
+  } catch (error) {
+    return NextResponse.json({ error: getDbErrorMessage(error) }, { status: 500 })
+  }
 
   const sig = req.headers.get('stripe-signature')
   let event

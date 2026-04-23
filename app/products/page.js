@@ -1,129 +1,203 @@
 'use client'
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchCategories, fetchProducts, fetchProductsByCategory } from '@/app/redux/productActions'
+import { clearProductsByCategory, fetchCategories, fetchProducts, fetchProductsByCategory } from '@/app/redux/productActions'
 import styled from 'styled-components'
 import Header from '@/app/header/page'
-import { applySort } from '@/app/util/util'
+import { applySort, sortByOptions } from '@/app/util/util'
 import ProductsGrid from '@/app/components/ProductsGrid'
 import Sidebar from '@/app/components/SideBar'
 import Search from '@/app/components/Search'
 import Title from '@/app/components/Title'
 import { useDebounce } from '@/app/hooks/useDebounce'
-import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
 import Center from '@/app/components/Center'
 import Button from '@/app/components/Button'
 import Loading from '@/app/components/Loading'
 
-const Container = styled.div`
-  display: grid;
-  grid-template-columns: 1fr; /* Mobile view, single column */
-  gap: 5px;
-  padding: 10px;
+const PageSection = styled.section`
+  padding: 1.4rem 0 4rem;
+`
 
-  @media screen and (min-width: 768px) {
-    grid-template-columns: 0.4fr 1.6fr;
-    grid-template-rows: auto auto;
-    padding: 50px 50px 140px 50px;
-    gap: 20px;
+const ControlsWrapper = styled.div`
+  display: grid;
+  gap: 0.7rem;
+  margin: 1rem 0 1.2rem;
+
+  @media (min-width: 900px) {
+    display: none;
   }
 `
-const Content = styled.div``
+
+const Select = styled.select`
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  padding: 0.75rem;
+`
+
+const Container = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @media screen and (min-width: 900px) {
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 1.2rem;
+  }
+`
+
+const ContentCard = styled.div`
+  background: #fff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 1rem;
+`
+
+const StateMessage = styled.p`
+  color: var(--text-secondary);
+  padding: 1rem 0;
+`
+
 const ButtonWrapper = styled.div`
   display: flex;
-  grid-column: 1 / -1;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+`
+
+const PaginationText = styled.span`
+  color: var(--text-secondary);
+  font-size: 0.92rem;
 `
 
 export default function ProductsPage() {
   const dispatch = useDispatch()
-  const { products, loading, error, productsByCategory } = useSelector((state) => state.products)
+  const { products, loading, error, productsByCategory, categories } = useSelector((state) => state.products)
+
   const productsPerPage = 10
   const [sortOption, setSortOption] = useState('sort1')
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null)
+  const [selectedCategoryId, setSelectedCategoryId] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
 
-  const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const gridRef = useRef(null)
-
-  const numberOfPages = useMemo(() => {
-    const totalProducts = selectedCategoryId ? productsByCategory.length : products.length
-    return Math.ceil(totalProducts / productsPerPage)
-  }, [products, productsByCategory, selectedCategoryId])
-
-  const productsToDisplay = useMemo(() => {
-    const sourceProducts = selectedCategoryId ? productsByCategory : products
-    return sourceProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage)
-  }, [productsByCategory, selectedCategoryId, products, currentPage])
-
-  const sortedProducts = useMemo(() => {
-    const filteredProducts = productsToDisplay.filter((product) => {
-      return (
-        product.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        product.brand.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        (product.tags && product.tags.some((tag) => tag.toLowerCase().includes(debouncedSearchQuery.toLowerCase())))
-      )
-    })
-    return applySort(filteredProducts, sortOption)
-  }, [sortOption, productsToDisplay, debouncedSearchQuery])
+  const debouncedSearchQuery = useDebounce(searchQuery, 250)
 
   useEffect(() => {
     dispatch(fetchProducts())
     dispatch(fetchCategories())
-  }, [])
+  }, [dispatch])
+
+  const sourceProducts = useMemo(() => {
+    if (selectedCategoryId) return productsByCategory || []
+    return products || []
+  }, [selectedCategoryId, productsByCategory, products])
+
+  const searchedProducts = useMemo(() => {
+    const query = debouncedSearchQuery.trim().toLowerCase()
+    if (!query) return sourceProducts
+
+    return sourceProducts.filter((product) => {
+      const title = product.title?.toLowerCase() || ''
+      const brand = product.brand?.toLowerCase() || ''
+      const hasTag = product.tags?.some((tag) => tag.toLowerCase().includes(query))
+      return title.includes(query) || brand.includes(query) || hasTag
+    })
+  }, [sourceProducts, debouncedSearchQuery])
+
+  const sortedProducts = useMemo(() => applySort(searchedProducts, sortOption), [searchedProducts, sortOption])
+
+  const numberOfPages = useMemo(() => Math.max(1, Math.ceil(sortedProducts.length / productsPerPage)), [sortedProducts.length])
+
+  const productsToDisplay = useMemo(() => {
+    const start = (currentPage - 1) * productsPerPage
+    return sortedProducts.slice(start, start + productsPerPage)
+  }, [sortedProducts, currentPage])
 
   useEffect(() => {
-    loading ? NProgress.start() : NProgress.done()
-  }, [loading])
+    if (currentPage > numberOfPages) {
+      setCurrentPage(1)
+    }
+  }, [numberOfPages, currentPage])
 
-  const handleSortChange = (value) => setSortOption(value)
+  const handleSortChange = (value) => {
+    setSortOption(value)
+    setCurrentPage(1)
+  }
 
   const handleCategorySortChange = (categoryId) => {
-    if (selectedCategoryId !== categoryId) {
-      setSelectedCategoryId(categoryId)
+    setSelectedCategoryId(categoryId)
+    setCurrentPage(1)
+
+    if (categoryId) {
       dispatch(fetchProductsByCategory(categoryId))
-      setCurrentPage(1)
+    } else {
+      dispatch(clearProductsByCategory())
     }
   }
 
   const renderContent = () => {
-    if (error) return <Center>
-      <div>Error: {error}</div>
-    </Center>
-    if (sortedProducts?.length === 0) return <div>No products available</div>
-    return <ProductsGrid ref={gridRef} products={sortedProducts} />
+    if (error) return <StateMessage>Error: {error}</StateMessage>
+    if (!productsToDisplay?.length) return <StateMessage>No products available.</StateMessage>
+    return <ProductsGrid products={productsToDisplay} />
   }
 
   return (
     <>
       <Header />
-      <Center>
-        <Title>All products</Title>
-        <Search onSearch={setSearchQuery} />
-      </Center>
-      <Container>
-        <Sidebar handleSortChange={handleSortChange} handleCategorySort={handleCategorySortChange} />
-        <Content>{renderContent()}</Content>
-        <ButtonWrapper>
-          <Button $black $disabled={currentPage === 1} onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}>
-            Previous
-          </Button>
-          <span aria-live='polite'>
-            Page {currentPage} of {numberOfPages}
-          </span>
-          <Button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, numberOfPages))}
-            $black
-            $disabled={currentPage === numberOfPages}
-          >
-            Next
-          </Button>
-        </ButtonWrapper>
-      </Container>
+      <PageSection>
+        <Center>
+          <Title>All products</Title>
+          <Search onSearch={setSearchQuery} />
+
+          <ControlsWrapper>
+            <Select value={sortOption} onChange={(e) => handleSortChange(e.target.value)}>
+              {sortByOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  Sort: {option.label}
+                </option>
+              ))}
+            </Select>
+
+            <Select value={selectedCategoryId} onChange={(e) => handleCategorySortChange(e.target.value)}>
+              <option value=''>All categories</option>
+              {categories?.map((category) => (
+                <option key={category._id} value={category._id}>
+                  {category.name}
+                </option>
+              ))}
+            </Select>
+          </ControlsWrapper>
+
+          {loading ? (
+            <Loading />
+          ) : (
+            <Container>
+              <Sidebar handleSortChange={handleSortChange} handleCategorySort={handleCategorySortChange} />
+              <ContentCard>
+                {renderContent()}
+
+                <ButtonWrapper>
+                  <Button $black $disabled={currentPage === 1} onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}>
+                    Previous
+                  </Button>
+                  <PaginationText aria-live='polite'>
+                    Page {currentPage} of {numberOfPages}
+                  </PaginationText>
+                  <Button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, numberOfPages))}
+                    $black
+                    $disabled={currentPage === numberOfPages}
+                  >
+                    Next
+                  </Button>
+                </ButtonWrapper>
+              </ContentCard>
+            </Container>
+          )}
+        </Center>
+      </PageSection>
     </>
   )
 }

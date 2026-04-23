@@ -7,6 +7,9 @@ import {
   clearCheckout,
 } from './checkoutSlice'
 
+const CHECKOUT_STORAGE_KEY = 'checkout.details'
+const LEGACY_CHECKOUT_STORAGE_KEY = 'checkoutDetails'
+
 export const fetchPaymentCart =
   ({ name, email, city, postalCode, streetAddress, country, cart }) =>
   async (dispatch) => {
@@ -34,7 +37,7 @@ export const addCheckoutDetails = (details) => async (dispatch, getState) => {
     dispatch(addCheckoutDetailsSuccess(details))
 
     const updatedCheckoutDetails = getState().checkout.details
-    localStorage.setItem('checkout.details', JSON.stringify(updatedCheckoutDetails))
+    localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(updatedCheckoutDetails))
   } catch (error) {
     dispatch(fetchCheckoutDetailsFailure(error.message))
   }
@@ -42,10 +45,13 @@ export const addCheckoutDetails = (details) => async (dispatch, getState) => {
 
 export const clearCheckoutDetails = () => async (dispatch) => {
   dispatch(clearCheckout())
+  localStorage.removeItem(CHECKOUT_STORAGE_KEY)
+  localStorage.removeItem(LEGACY_CHECKOUT_STORAGE_KEY)
 }
 
 export const loadCheckoutDetailsFromLocalStorage = () => (dispatch) => {
-  const updatedCheckoutDetails = localStorage.getItem('checkout.details')
+  const updatedCheckoutDetails =
+    localStorage.getItem(CHECKOUT_STORAGE_KEY) || localStorage.getItem(LEGACY_CHECKOUT_STORAGE_KEY)
   if (updatedCheckoutDetails) {
     dispatch(fetchCheckoutDetailsRequest())
     try {

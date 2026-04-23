@@ -1,28 +1,41 @@
 import styled from 'styled-components'
-const ColumnsWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  @media screen and (min-width: 768px) {
-    grid-template-columns: 1.2fr 0.8fr;
-  }
-  gap: 40px;
-  margin-top: 40px;
-  margin-bottom: 100px;
+import Center from '@/app/components/Center'
+import ButtonLink from '@/app/components/ButtonLink'
+
+const Wrapper = styled.section`
+  padding: 3rem 0;
 `
 
 const Box = styled.div`
   background-color: #fff;
-  border-radius: 10px;
-  padding: 30px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 1.4rem;
+  max-width: 640px;
+  margin: 0 auto;
+`
+
+const Heading = styled.h1`
+  margin-bottom: 0.5rem;
+`
+
+const Description = styled.p`
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
 `
 
 export default function ThankYouMessage() {
-    return (
-      <ColumnsWrapper>
+  return (
+    <Wrapper>
+      <Center>
         <Box>
-          <h1>Thanks for your order!</h1>
-          <p>We will email you when your order will be sent.</p>
+          <Heading>Thanks for your order!</Heading>
+          <Description>We will email you once your order is shipped.</Description>
+          <ButtonLink href='/' $black>
+            Continue shopping
+          </ButtonLink>
         </Box>
-      </ColumnsWrapper>
-    )
-  }
+      </Center>
+    </Wrapper>
+  )
+}

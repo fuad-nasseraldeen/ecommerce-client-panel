@@ -6,9 +6,9 @@ const BlurOverlayContainer = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(3px);
   z-index: 11;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(245, 249, 255, 0.52);
 `
 
 export const BlurOverlay = () => {

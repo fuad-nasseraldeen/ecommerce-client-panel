@@ -1,14 +1,13 @@
-import axios from 'axios'
 import {
   fetchCartRequest,
   addCartSuccess,
   fetchCartFailure,
   removeCartSuccess,
   saveCartFromLocalStorageSuccess,
+  clearCart as clearCartSuccess,
 } from './cartSlice'
 
 export const addProductToCart = (product) => async (dispatch, getState) => {
-  dispatch(fetchCartRequest())
   try {
     dispatch(addCartSuccess(product))
 
@@ -19,10 +18,9 @@ export const addProductToCart = (product) => async (dispatch, getState) => {
   }
 }
 
-export const removeProductFromCart = (productIndex) => async (dispatch, getState) => {
-  dispatch(fetchCartRequest())
+export const removeProductFromCart = (product) => async (dispatch, getState) => {
   try {
-    dispatch(removeCartSuccess(productIndex))
+    dispatch(removeCartSuccess(product))
 
     const updatedCart = getState().cart.items
     localStorage.setItem('cart', JSON.stringify(updatedCart))
@@ -32,7 +30,8 @@ export const removeProductFromCart = (productIndex) => async (dispatch, getState
 }
 
 export const clearCart = () => async (dispatch) => {
-  dispatch(clearCart())
+  dispatch(clearCartSuccess())
+  localStorage.removeItem('cart')
 }
 
 export const loadCartFromLocalStorage = () => (dispatch) => {

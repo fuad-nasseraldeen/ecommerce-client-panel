@@ -42,8 +42,8 @@ const productSlice = createSlice({
     setProductsByCategory: (state, action) => {
       state.productsByCategory = action.payload
     },
-    setClearProductsByCategory: (state, action) => {
-      state.productsByCategory = null
+    setClearProductsByCategory: (state) => {
+      state.productsByCategory = []
     },
   },
 })

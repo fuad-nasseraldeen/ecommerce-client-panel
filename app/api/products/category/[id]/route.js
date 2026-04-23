@@ -1,14 +1,11 @@
 // /api/products/category/[id]/route.js
-import { mongooseConnect } from '@/lib/mongoose'
+import { getDbErrorMessage, mongooseConnect } from '@/lib/mongoose'
 import { Product } from '@/models/Product'
 
 export async function GET(req, { params }) {
-  await mongooseConnect()
-  const { id } = params
-
-  console.log('ID:', id) // Check if the ID is being logged
-
   try {
+    await mongooseConnect()
+    const { id } = params
     const products = await Product.find({ category: id })
 
     if (!products.length) {
@@ -18,6 +15,6 @@ export async function GET(req, { params }) {
     return new Response(JSON.stringify(products), { status: 200 })
   } catch (error) {
     console.error('Error fetching products by category:', error)
-    return new Response(JSON.stringify({ message: 'Error fetching products' }), { status: 500 })
+    return new Response(JSON.stringify({ message: getDbErrorMessage(error) }), { status: 500 })
   }
 }

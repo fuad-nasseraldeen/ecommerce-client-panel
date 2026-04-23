@@ -1,7 +1,9 @@
+import { getDbErrorMessage, mongooseConnect } from '@/lib/mongoose'
 import { Product } from '@/models/Product'
 
 export async function POST(req) {
   try {
+    await mongooseConnect()
     const { reviewId, productId } = await req.json()
 
     // Find the product by productId
@@ -28,6 +30,6 @@ export async function POST(req) {
     return new Response(JSON.stringify({ dislike: updatedDislikeCount }), { status: 201 })
   } catch (error) {
     console.error('Error updating dislike:', error)
-    return new Response(JSON.stringify({ error: 'Unable to update dislike' }), { status: 500 })
+    return new Response(JSON.stringify({ error: getDbErrorMessage(error) }), { status: 500 })
   }
 }

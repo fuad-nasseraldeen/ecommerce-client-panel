@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { motion, useInView } from 'framer-motion'
 import styled from 'styled-components'
 import Center from '@/app/components/Center'
@@ -11,54 +11,63 @@ import flyToCart from '@/app/components/FlyToCart'
 import { useDispatch } from 'react-redux'
 import { addProductToCart } from '../redux/cartActions'
 
-const Bg = styled.div`
-  background-color: #222;
+const Bg = styled.section`
   color: #fff;
-  padding: 50px 0;
+  padding: 2.5rem 0;
 `
-const Title = styled.h1`
-  margin: 0;
-  font-weight: normal;
-  font-size: 1.5rem;
-  @media screen and (min-width: 768px) {
-    font-size: 3rem;
-  }
+
+const Surface = styled.div`
+  border-radius: var(--radius-lg);
+  background: linear-gradient(130deg, #0d2134 0%, #132d44 52%, #16424f 100%);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
 `
-const Desc = styled.p`
-  color: #aaa;
-  font-size: 0.8rem;
-`
+
 const ColumnsWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 40px;
-  img {
-    // max-width: 100%;
-    // max-height: 220px;
-    display: block;
-    margin: 0 auto;
-  }
-  div:nth-child(1) {
-    order: 2;
-  }
+  gap: 2rem;
+  padding: 2rem 1.2rem;
+
   @media screen and (min-width: 768px) {
     grid-template-columns: 1.1fr 0.9fr;
-    div:nth-child(1) {
-      order: 0;
-    }
-    img {
-      // max-width: 100%;
-    }
+    padding: 2.6rem 2.4rem;
   }
 `
+
 const Column = styled.div`
   display: flex;
   align-items: center;
 `
+
+const Title = styled.h1`
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-size: clamp(1.8rem, 1.1rem + 2.2vw, 3.2rem);
+`
+
+const Desc = styled.p`
+  color: rgba(236, 245, 255, 0.84);
+  font-size: 0.96rem;
+  margin-top: 1rem;
+  line-height: 1.65;
+  max-width: 52ch;
+`
+
 const ButtonsWrapper = styled.div`
   display: flex;
-  gap: 10px;
-  margin-top: 25px;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.4rem;
+`
+
+const ProductImage = styled.img`
+  width: 100%;
+  max-height: 340px;
+  object-fit: contain;
+  filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.35));
 `
 
 export default function Featured({ product }) {
@@ -67,7 +76,10 @@ export default function Featured({ product }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
 
-  const addToCart = (e, product) => {
+  const productUrl = useMemo(() => (product?._id ? `/product/${product._id}` : '/products'), [product?._id])
+
+  const addToCart = (e) => {
+    if (!product) return
     flyToCart(e, whiteBoxRef.current)
     dispatch(addProductToCart(product))
   }
@@ -75,30 +87,37 @@ export default function Featured({ product }) {
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: 28 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.45 }}
     >
       <Bg>
         <Center>
-          <ColumnsWrapper>
-            <Column >
-              <div>
-                <Title>{product?.title}</Title>
-                <Desc>{product?.description}</Desc>
-                <ButtonsWrapper>
-                  <ButtonLink href={'/product/' + product?._id} $white $outline>
-                    Read More
-                  </ButtonLink>
-                  <Button  $white onClick={(e) => addToCart(e, product)}>
-                    <CartIcon />
-                    Add to cart
-                  </Button>
-                </ButtonsWrapper>
-              </div>
-            </Column>
-            <Column>{product?.thumbnail && <img ref={whiteBoxRef} src={product?.thumbnail} alt='' />}</Column>
-          </ColumnsWrapper>
+          <Surface>
+            <ColumnsWrapper>
+              <Column>
+                <div>
+                  <Title>{product?.title || 'Discover your next favorite tech pick'}</Title>
+                  <Desc>
+                    {product?.description ||
+                      'Curated gadgets with trusted quality, faster checkout, and everything you need for a smoother shopping experience.'}
+                  </Desc>
+                  <ButtonsWrapper>
+                    <ButtonLink href={productUrl} $white $outline>
+                      View details
+                    </ButtonLink>
+                    <Button $white onClick={addToCart}>
+                      <CartIcon />
+                      Add to cart
+                    </Button>
+                  </ButtonsWrapper>
+                </div>
+              </Column>
+              <Column>
+                {product?.thumbnail && <ProductImage ref={whiteBoxRef} src={product.thumbnail} alt={product.title || 'Featured product'} />}
+              </Column>
+            </ColumnsWrapper>
+          </Surface>
         </Center>
       </Bg>
     </motion.div>

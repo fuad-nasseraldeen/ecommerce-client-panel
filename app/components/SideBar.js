@@ -3,49 +3,56 @@ import { sortByOptions } from '@/app/util/util'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 
-const SidebarWrapper = styled.div`
-  display: none; /* Hide sidebar by default */
+const SidebarWrapper = styled.aside`
+  display: none;
 
-  @media screen and (min-width: 768px) {
-    display: block; /* Show sidebar for larger screens */
+  @media screen and (min-width: 900px) {
+    display: block;
   }
 `
 
-const SidebarContainer = styled.div`
-  background-color: #f8f8f8;
-  padding: 20px;
-  border-right: 1px solid #ddd;
-  border-radius: 8px;
-  margin-bottom: 20px;
+const SidebarContainer = styled.section`
+  background-color: #fff;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.9rem;
+  box-shadow: var(--shadow-sm);
 `
 
 const FilterTitle = styled.h3`
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 15px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.65rem;
 `
 
 const SortOptionList = styled.ul`
   list-style-type: none;
   padding: 0;
+  margin: 0;
 `
 
 const SortOptionItem = styled.li`
-  margin-bottom: 10px;
+  margin-bottom: 0.58rem;
   display: flex;
   align-items: center;
-  letter-spacing: 1px;
+  gap: 0.5rem;
+
   input[type='radio'] {
-    margin-right: 10px;
+    accent-color: var(--brand);
+    margin: 0;
   }
 
   label {
-    font-size: 1rem;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    cursor: pointer;
   }
 `
 
 export default function Sidebar({ handleSortChange, handleCategorySort }) {
-  const [selectedSort, setSelectedSort] = useState('')
+  const [selectedSort, setSelectedSort] = useState('sort1')
   const [selectedCategory, setSelectedCategory] = useState('')
   const categories = useSelector((state) => state.products.categories)
 
@@ -64,7 +71,7 @@ export default function Sidebar({ handleSortChange, handleCategorySort }) {
   return (
     <SidebarWrapper>
       <SidebarContainer>
-        <FilterTitle>Sort By</FilterTitle>
+        <FilterTitle>Sort</FilterTitle>
         <SortOptionList>
           {sortByOptions?.map((option) => (
             <SortOptionItem key={option.id}>
@@ -73,7 +80,7 @@ export default function Sidebar({ handleSortChange, handleCategorySort }) {
                 id={option.id}
                 name='sort'
                 value={option.id}
-                checked={selectedSort.length > 0 ? selectedSort === option.id : option.checked}
+                checked={selectedSort === option.id}
                 onChange={handleSort}
               />
               <label htmlFor={option.id}>{option.label}</label>
@@ -81,9 +88,21 @@ export default function Sidebar({ handleSortChange, handleCategorySort }) {
           ))}
         </SortOptionList>
       </SidebarContainer>
+
       <SidebarContainer>
-        <FilterTitle>Sort By Category</FilterTitle>
+        <FilterTitle>Category</FilterTitle>
         <SortOptionList>
+          <SortOptionItem key='all-categories'>
+            <input
+              type='radio'
+              id='all-categories'
+              name='category'
+              value=''
+              checked={selectedCategory === ''}
+              onChange={handleCategory}
+            />
+            <label htmlFor='all-categories'>All categories</label>
+          </SortOptionItem>
           {categories?.map((category) => (
             <SortOptionItem key={category._id}>
               <input

@@ -1,4 +1,4 @@
-import { mongooseConnect } from '@/lib/mongoose'
+import { getDbErrorMessage, mongooseConnect } from '@/lib/mongoose'
 import { Product } from '@/models/Product'
 import { Order } from '@/models/Order'
 import Stripe from 'stripe'
@@ -49,6 +49,6 @@ export async function POST(req) {
     return NextResponse.json({ url: session.url })
   } catch (error) {
     console.error('Error creating Stripe session:', error)
-    return NextResponse.json({ message: 'Error creating Stripe session' }, { status: 500 })
+    return NextResponse.json({ message: getDbErrorMessage(error) }, { status: 500 })
   }
 }

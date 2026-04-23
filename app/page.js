@@ -1,18 +1,31 @@
 'use client'
 import Header from './header/page'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts, fetchNewArrivals, fetchCategories, fetchHomePageProduct } from '@/app/redux/productActions'
 import NewProducts from '@/app/newProducts/NewProducts'
 import ShopByCategory from '@/app/components/ShopByCategory'
 import Featured from '@/app/featured/page'
 import { getRandomProduct } from '@/app/util/generateRandomProduct'
-import Loading from '@/app/components/Loading'
 import Center from '@/app/components/Center'
+import styled from 'styled-components'
+
+const HomeWrapper = styled.main`
+  padding-bottom: 4.5rem;
+`
+
+const SectionSpacing = styled.div`
+  margin-top: 1rem;
+`
+
+const LoadingText = styled.p`
+  color: var(--text-secondary);
+  padding: 2rem 0;
+`
+
 export default function HomePage() {
   const dispatch = useDispatch()
-  const { products, newArrivals, categories, homePageProduct, loading } = useSelector((state) => state.products)
-  const [isRandomProductGenerated, setIsRandomProductGenerated] = useState(false)
+  const { products, newArrivals, homePageProduct, loading } = useSelector((state) => state.products)
 
   useEffect(() => {
     dispatch(fetchProducts())
@@ -20,29 +33,32 @@ export default function HomePage() {
     dispatch(fetchCategories())
   }, [dispatch])
 
-  useEffect(() => {
-    if (!isRandomProductGenerated && products.length > 0) {
-      const productHomePage = getRandomProduct(products)
-      if (productHomePage) {
-        dispatch(fetchHomePageProduct(productHomePage._id))
-      }
-      setIsRandomProductGenerated(true)
-    }
-  }, [products, dispatch, isRandomProductGenerated])
+  const selectedFeaturedProduct = useMemo(() => {
+    if (homePageProduct) return homePageProduct
+    if (!products?.length) return null
+    return getRandomProduct(products)
+  }, [homePageProduct, products])
 
-  if (loading)
-    return (
-      <Center>
-        <Loading/>
-      </Center>
-    )
+  useEffect(() => {
+    if (!homePageProduct && selectedFeaturedProduct?._id) {
+      dispatch(fetchHomePageProduct(selectedFeaturedProduct._id))
+    }
+  }, [homePageProduct, selectedFeaturedProduct, dispatch])
 
   return (
     <>
       <Header />
-      <Featured product={homePageProduct} />
-      <ShopByCategory categories={categories} />
-      <NewProducts products={newArrivals} />
+      <HomeWrapper>
+        <Featured product={selectedFeaturedProduct} />
+
+        <Center>
+          <SectionSpacing>
+            <ShopByCategory />
+          </SectionSpacing>
+
+          {loading && !newArrivals?.length ? <LoadingText>Loading products...</LoadingText> : <NewProducts products={newArrivals} />}
+        </Center>
+      </HomeWrapper>
     </>
   )
 }

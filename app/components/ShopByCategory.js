@@ -1,143 +1,95 @@
 'use client'
 import styled from 'styled-components'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffect } from 'react'
 import { categoriesImg } from '../util/util'
 import { fetchProductsByCategory } from '../redux/productActions'
 import Link from 'next/link'
 
-import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
-
 const Section = styled.section`
-  padding: 3.5rem 0;
-  background-color: white;
-  color: #0b1727;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  z-index: 10;
+  padding: 2.3rem 0 1.9rem;
 `
 
 const Container = styled.div`
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 3rem;
-`
-
-const TitleWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-
-  @media screen and (min-width: 768px) {
-    text-align: start;
-  }
 `
 
 const Title = styled.h2`
-  font-size: 2rem;
-  line-height: 1;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  margin-left: 0.75rem;
-
-  @media screen and (min-width: 768px) {
-    font-size: 40px;
-  }
+  font-size: clamp(1.45rem, 1.12rem + 1.15vw, 2rem);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.2rem;
 `
 
-const ScrollContainer = styled.div`
+const CategoriesGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr;
-  justify-items: center;
-  gap: 45px;
-  white-space: nowrap;
-  gap: 1.5rem;
-  padding-bottom: 1rem;
-  @media screen and (min-width: 450px) {
-    grid-template-columns: 1fr 1fr;
-    justify-items: center;
-    gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+
+  @media screen and (min-width: 680px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-  @media screen and (min-width: 768px) {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+
+  @media screen and (min-width: 1024px) {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
   }
 `
 
-const ProductWrapper = styled.div`
-  display: inline-block;
-  flex: 0 0 auto;
-  width: 200px; /* Fixed width for each item */
-`
-
-const ProductItemWrapper = styled(Link)`
+const CategoryCard = styled(Link)`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-
-  padding: 10px;
-  min-width: auto;
   text-align: center;
-  transition: 0.3s;
-  background: none;
-  border: none;
-  cursor: pointer;
+  gap: 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 1rem 0.7rem;
+  min-height: 140px;
+  transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
   &:hover {
-    transform: scale(1.1);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+    border-color: #bfcddd;
   }
 `
 
 const ProductImageWrapper = styled.div`
-  width: 8rem; /* Reduce the wrapper size */
-  height: 8rem;
+  width: 4.4rem;
+  height: 4.4rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f8fcff 0%, #edf4fc 100%);
+  border: 1px solid #d8e7f2;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.5rem; /* Add padding for better spacing */
-  border: 1px solid #eee; /* Add a subtle border */
-  border-radius: 50%; /* Keep it round */
-  background-color: #f8f8f8; /* Add a background color */
-  margin: 0 auto;
 `
 
 const ProductImage = styled.img`
-  max-width: 70%;
-  max-height: 70%;
+  max-width: 72%;
+  max-height: 72%;
   object-fit: contain;
 `
 
-const ProductTitle = styled.h2`
+const ProductTitle = styled.h3`
   font-family: 'Kanit', sans-serif;
-  font-weight: 900;
-  font-style: normal;
-  font-size: 1.125rem;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  line-height: 1.5;
-  color: #0d3d29;
+  font-weight: 700;
+  font-size: 0.96rem;
+  line-height: 1.25;
+  color: #12324a;
+`
+
+const StateMessage = styled.p`
+  color: var(--text-secondary);
 `
 
 export default function ShopByCategory() {
   const categories = useSelector((state) => state.products.categories)
-  const loading = useSelector((state) => state.products.loading)
   const error = useSelector((state) => state.products.error)
-
   const dispatch = useDispatch()
-
-  useEffect(() => {
-    if (loading) {
-      NProgress.start()
-    } else {
-      NProgress.done()
-    }
-  }, [loading])
 
   const handleSelectedCategory = (categoryId) => {
     dispatch(fetchProductsByCategory(categoryId))
@@ -146,30 +98,25 @@ export default function ShopByCategory() {
   return (
     <Section>
       <Container>
-        <TitleWrapper>
-          <Title>Shop By Category</Title>
-        </TitleWrapper>
-        <ScrollContainer>
-          {error && <div>Error: {error}</div>}
-          {(!categories || categories.length === 0) &&
-            <div>No categories available.</div>
-          }
+        <Title>Shop by category</Title>
+        {error && <StateMessage>Error: {error}</StateMessage>}
+        {(!categories || categories.length === 0) && <StateMessage>No categories available.</StateMessage>}
+
+        <CategoriesGrid>
           {categories?.map((category) => {
-            // Find the corresponding image
             const categoryImg = categoriesImg?.find((_category) => _category.name === category?.name)
             const url = '/products/category/' + category?._id
+
             return (
-              <ProductWrapper key={category?._id}>
-                <ProductItemWrapper href={url} onClick={() => handleSelectedCategory(category?._id)}>
-                  <ProductImageWrapper>
-                    <ProductImage src={categoryImg?.img} alt={category?.name} loading='lazy' />
-                  </ProductImageWrapper>
-                  <ProductTitle>{category?.name}</ProductTitle>
-                </ProductItemWrapper>
-              </ProductWrapper>
+              <CategoryCard key={category?._id} href={url} onClick={() => handleSelectedCategory(category?._id)}>
+                <ProductImageWrapper>
+                  <ProductImage src={categoryImg?.img} alt={category?.name} loading='lazy' />
+                </ProductImageWrapper>
+                <ProductTitle>{category?.name}</ProductTitle>
+              </CategoryCard>
             )
           })}
-        </ScrollContainer>
+        </CategoriesGrid>
       </Container>
     </Section>
   )

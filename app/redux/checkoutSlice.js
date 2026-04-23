@@ -25,16 +25,10 @@ const checkoutSlice = createSlice({
 
       // Set details
       state.details = [updatedDetails]
-
-      // Save to local storage
-      localStorage.setItem('checkoutDetails', JSON.stringify(state.details))
     },
     saveCheckoutDetailsFromLocalStorageSuccess: (state, action) => {
       state.loading = false
       state.details = action.payload
-
-      // Optionally, save to local storage
-      localStorage.setItem('checkoutDetails', JSON.stringify(action.payload))
     },
     fetchCheckoutDetailsFailure: (state, action) => {
       state.loading = false
@@ -42,8 +36,6 @@ const checkoutSlice = createSlice({
     },
     clearCheckout: (state) => {
       state.details = []
-      // Clear local storage if necessary
-      localStorage.removeItem('checkoutDetails')
     },
   },
 })

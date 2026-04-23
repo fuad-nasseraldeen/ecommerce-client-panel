@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Header from '../header/page'
 import styled from 'styled-components'
@@ -8,59 +8,74 @@ import CartItemsBox from '@/app/components/CartItemsBox'
 import OrderForm from '@/app/components/OrderForm'
 import RetryMessage from '@/app/components/RetryMessage'
 import ThankYouMessage from '@/app/components/ThankYouMessage'
-import { handleDisabledProceedToCheckout, isValidEmail } from '@/app/util/checkoutUtils'
+import { isValidEmail } from '@/app/util/checkoutUtils'
 import Loading from '@/app/components/Loading'
-import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
 
 import { addProductToCart, removeProductFromCart, clearCart } from '@/app/redux/cartActions'
 import { addCheckoutDetails, clearCheckoutDetails, fetchPaymentCart } from '@/app/redux/checkoutActions'
+import { selectCartItems, selectCartTotal, selectCheckoutDetails } from '@/app/redux/selectors'
+
+const Section = styled.section`
+  padding: 1.2rem 0 5rem;
+`
 
 const ColumnsWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  @media screen and (min-width: 768px) {
-    grid-template-columns: 1.2fr 0.8fr;
+  gap: 1rem;
+
+  @media screen and (min-width: 960px) {
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 1.2rem;
   }
-  gap: 40px;
-  margin-top: 40px;
-  margin-bottom: 100px;
 `
 
 const Box = styled.div`
   background-color: #fff;
-  border-radius: 10px;
-  padding: 30px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
 `
-const checkoutDetailsErrors = {
+
+const Heading = styled.h2`
+  margin-bottom: 0.8rem;
+  font-size: 1.2rem;
+`
+
+const FieldError = {
   name: '',
   email: '',
   city: '',
   streetAddress: '',
   postalCode: '',
-  country: ''
+  country: '',
 }
+
 export default function CartPage() {
   const dispatch = useDispatch()
-  const cart = useSelector((state) => state.cart.items)
-  const error = useSelector((state) => state.checkout.error)
-  const loading = useSelector((state) => state.checkout.loading)
-  const checkoutDetails = useSelector((state) => state.checkout.details[0])
-  const [errors, setErrors] = useState(Object.assign({}, checkoutDetailsErrors))
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [city, setCity] = useState('')
-  const [postalCode, setPostalCode] = useState('')
-  const [streetAddress, setStreetAddress] = useState('')
-  const [country, setCountry] = useState('')
+  const cart = useSelector(selectCartItems)
+  const checkoutDetails = useSelector(selectCheckoutDetails)
+  const total = useSelector(selectCartTotal)
+  const checkoutError = useSelector((state) => state.checkout.error)
+  const checkoutLoading = useSelector((state) => state.checkout.loading)
 
   const [isSuccess, setIsSuccess] = useState(false)
-  const [isDisabled, SetIsDisabled] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
-const [tryAgainFlag, setTryAgainFlag] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false)
+  const [errors, setErrors] = useState(FieldError)
+  const [fields, setFields] = useState({
+    name: '',
+    email: '',
+    city: '',
+    postalCode: '',
+    streetAddress: '',
+    country: '',
+  })
+
   useEffect(() => {
     if (typeof window === 'undefined') return
-    if (window?.location.href.includes('success')) {
+
+    if (window.location.search.includes('success=1')) {
       setIsSuccess(true)
       if (cart?.length > 0) {
         dispatch(clearCart())
@@ -71,138 +86,115 @@ const [tryAgainFlag, setTryAgainFlag] = useState(false)
 
   useEffect(() => {
     if (checkoutDetails) {
-      setName(checkoutDetails.name || '')
-      setEmail(checkoutDetails.email || '')
-      setCity(checkoutDetails.city || '')
-      setPostalCode(checkoutDetails.postalCode || '')
-      setStreetAddress(checkoutDetails.streetAddress || '')
-      setCountry(checkoutDetails.country || '')
+      setFields((prev) => ({ ...prev, ...checkoutDetails }))
     }
   }, [checkoutDetails])
 
-  useEffect(() => {
-    SetIsDisabled(handleDisabledProceedToCheckout({ name, email, city, postalCode, streetAddress, country }))
-  }, [name, email, city, postalCode, streetAddress, country])
+  const validateFields = useCallback((payload) => {
+    const validationErrors = {}
+
+    Object.keys(FieldError).forEach((key) => {
+      if (!payload[key]) validationErrors[key] = `Field ${key} can't be empty`
+    })
+
+    if (payload.email && !isValidEmail(payload.email)) {
+      validationErrors.email = 'Please enter a valid email address'
+    }
+
+    return validationErrors
+  }, [])
 
   useEffect(() => {
-    const currentErrors = validateFields({ name, email, city, postalCode, streetAddress, country })
-    setErrors(currentErrors)
-  }, [name, email, city, postalCode, streetAddress, country])
+    if (!hasSubmitAttempt) return
+    setErrors(validateFields(fields))
+  }, [fields, hasSubmitAttempt, validateFields])
 
+  const isDisabled = useMemo(() => {
+    return Object.values(fields).some((value) => !value) || !isValidEmail(fields.email)
+  }, [fields])
 
   const addProduct = useCallback(
     (product) => {
-      NProgress.start()
       dispatch(addProductToCart(product))
-      NProgress.done()
     },
     [dispatch],
   )
 
   const removeProduct = useCallback(
-    (index) => {
-      NProgress.start()
-      dispatch(removeProductFromCart(index))
-      NProgress.done()
+    (product) => {
+      dispatch(removeProductFromCart(product))
     },
     [dispatch],
   )
-const validateFields = (fields) => {
-  const validationErrors = {}
-    Object.keys(checkoutDetailsErrors).forEach((key) => {
-      if (!fields[key]) validationErrors[key] = `Field ${key} can't be empty`
-    })
-  if (!isValidEmail(fields?.email)) validationErrors.email = 'Please enter a valid email address'
-  return validationErrors
-}
-
-  const handlePayment = useCallback(async () => {
-    setTryAgainFlag(true)
-    const hasEmptyFields = !checkoutDetails || Object.values(checkoutDetails).some((field) => !field)
-    const isEmailValid = isValidEmail(email)
-
-    if (hasEmptyFields || !isEmailValid) {
-      setErrors(validateFields(checkoutDetails))
-      setTryAgainFlag(false)
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      await dispatch(fetchPaymentCart({ name, email, city, postalCode, streetAddress, country, cart }))
-    } finally {
-      setIsLoading(false)
-    }
-  }, [dispatch, email, city, postalCode, streetAddress, country, cart, errors, checkoutDetails])
-
-
-  const total = cart.reduce((acc, product) => acc + product.price * product.quantity, 0).toFixed(2)
 
   const handleChange = useCallback(
     (key, value) => {
-      setErrors({...errors, [key]: ''})
-      switch (key) {
-        case 'name':
-          setName(value)
-          break
-        case 'email':
-          setEmail(value)
-          break
-        case 'city':
-          setCity(value)
-          break
-        case 'postalCode':
-          setPostalCode(value)
-          break
-        case 'streetAddress':
-          setStreetAddress(value)
-          break
-        case 'country':
-          setCountry(value)
-          break
-        default:
-          return
-      }
-      dispatch(addCheckoutDetails({ [key]: value }))
+      setFields((prev) => {
+        const nextState = { ...prev, [key]: value }
+        dispatch(addCheckoutDetails({ [key]: value }))
+        return nextState
+      })
+
+      setErrors((prev) => ({ ...prev, [key]: '' }))
     },
     [dispatch],
   )
 
+  const handlePayment = useCallback(async () => {
+    setHasSubmitAttempt(true)
+    const validationErrors = validateFields(fields)
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      await dispatch(fetchPaymentCart({ ...fields, cart }))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [dispatch, fields, cart, validateFields])
+
   if (isSuccess) return <ThankYouMessage />
-  if (isLoading || loading)
+
+  if (isSubmitting || checkoutLoading) {
     return (
       <Center>
         <Loading />
       </Center>
     )
-const renderOrderForm = () => {
-  if (error && tryAgainFlag) return <RetryMessage onRetry={() => setTryAgainFlag(false)} />
-  return (
-    <OrderForm
-      cart={cart}
-      fields={{ name, email, city, postalCode, streetAddress, country }}
-      onChange={handleChange}
-      onPayment={handlePayment}
-      isDisabled={isDisabled}
-      errors={errors}
-    />
-  )
-}
+  }
 
   return (
     <>
       <Header />
-      <Center>
-        <ColumnsWrapper>
-          <CartItemsBox cart={cart} total={total} addProduct={addProduct} removeProduct={removeProduct} />
-          {!!cart.length && (
-            <Box>
-              <h2>Order information</h2>
-              {renderOrderForm()}
-            </Box>
-          )}
-        </ColumnsWrapper>
-      </Center>
+      <Section>
+        <Center>
+          <ColumnsWrapper>
+            <CartItemsBox cart={cart} total={total.toFixed(2)} addProduct={addProduct} removeProduct={removeProduct} />
+
+            {!!cart.length && (
+              <Box>
+                <Heading>Order information</Heading>
+                {checkoutError && hasSubmitAttempt ? (
+                  <RetryMessage onRetry={() => setHasSubmitAttempt(false)} />
+                ) : (
+                  <OrderForm
+                    cart={cart}
+                    fields={fields}
+                    onChange={handleChange}
+                    onPayment={handlePayment}
+                    isDisabled={isDisabled}
+                    errors={errors}
+                  />
+                )}
+              </Box>
+            )}
+          </ColumnsWrapper>
+        </Center>
+      </Section>
     </>
   )
 }

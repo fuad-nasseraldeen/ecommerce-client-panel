@@ -4,52 +4,73 @@ import Table from '@/app/components/Table'
 
 const Box = styled.div`
   background-color: #fff;
-  border-radius: 10px;
-  padding: 30px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 1rem;
 `
+
+const Heading = styled.h2`
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+`
+
 const ProductInfoCell = styled.td`
-  padding: 10px 0;
   width: 50%;
+  color: var(--text-primary);
 `
+
+const ProductMeta = styled.div`
+  display: grid;
+  gap: 0.2rem;
+`
+
 const ProductImageBox = styled.div`
-  width: 70px;
-  height: 100px;
-  padding: 2px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  width: 64px;
+  height: 64px;
+  padding: 0.3rem;
+  border: 1px solid var(--border);
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  margin: 0.5rem;
+  margin-bottom: 0.4rem;
+
   img {
-    max-width: 60px;
-    max-height: 60px;
-  }
-  @media screen and (min-width: 768px) {
-    padding: 10px;
-    width: 100px;
-    height: 100px;
-    img {
-      max-width: 80px;
-      max-height: 80px;
-    }
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
   }
 `
+
+const QuantityControls = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+`
+
 const QuantityLabel = styled.span`
-  padding: 0px 24px;
-  display: block;
-  @media screen and (min-width: 768px) {
-    // display: inline-block;
-    // text-align: center;
+  min-width: 1.8rem;
+  text-align: center;
+  font-weight: 600;
+`
+
+const TotalRow = styled.tr`
+  td {
+    font-weight: 700;
+    color: var(--text-primary);
   }
 `
-const Margin = styled.div`
-  margin: 0.5rem;
+
+const EmptyState = styled.div`
+  color: var(--text-secondary);
+  padding: 0.7rem 0;
 `
-export default function CartItemsBox({cart, total, addProduct, removeProduct}) {
+
+export default function CartItemsBox({ cart, total, addProduct, removeProduct }) {
   return (
     <Box>
-      <h2>Cart</h2>
+      <Heading>Cart</Heading>
       {cart?.length > 0 ? (
         <Table>
           <thead>
@@ -59,36 +80,40 @@ export default function CartItemsBox({cart, total, addProduct, removeProduct}) {
               <th>Price</th>
             </tr>
           </thead>
+
           <tbody>
-            {cart?.map((product, index) => (
-              <tr key={product?._id + Math.random() * (100 - 1)}>
+            {cart.map((product) => (
+              <tr key={product?._id}>
                 <ProductInfoCell>
-                  <ProductImageBox>
-                    <img src={product?.images?.[0]} alt='' />
-                  </ProductImageBox>
-                  {product?.title}
+                  <ProductMeta>
+                    <ProductImageBox>
+                      <img src={product?.images?.[0]} alt={product?.title || 'Product'} />
+                    </ProductImageBox>
+                    <span>{product?.title}</span>
+                  </ProductMeta>
                 </ProductInfoCell>
+
                 <td>
-                  <Margin>
+                  <QuantityControls>
                     <Button onClick={() => removeProduct(product)}>-</Button>
-                  </Margin>
-                  <QuantityLabel>{product?.quantity}</QuantityLabel>
-                  <Margin>
+                    <QuantityLabel>{product?.quantity}</QuantityLabel>
                     <Button onClick={() => addProduct(product)}>+</Button>
-                  </Margin>
+                  </QuantityControls>
                 </td>
+
                 <td>${(product.price * product.quantity).toFixed(2)}</td>
               </tr>
             ))}
-            <tr>
+
+            <TotalRow>
               <td></td>
-              <td></td>
+              <td>Total</td>
               <td>${total}</td>
-            </tr>
+            </TotalRow>
           </tbody>
         </Table>
       ) : (
-        <div>Your cart is empty</div>
+        <EmptyState>Your cart is empty.</EmptyState>
       )}
     </Box>
   )

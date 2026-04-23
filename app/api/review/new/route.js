@@ -1,7 +1,9 @@
+import { getDbErrorMessage, mongooseConnect } from '@/lib/mongoose'
 import { Product } from '@/models/Product'
 
 export async function POST(req) {
   try {
+    await mongooseConnect()
     const { productId, reviewerName, reviewerEmail, rating, comment } = await req.json()
 
     // Find the product by ID
@@ -31,6 +33,6 @@ export async function POST(req) {
     return new Response(JSON.stringify(newReview), { status: 201 })
   } catch (error) {
     console.error('Error adding new review:', error)
-    return new Response(JSON.stringify({ error: 'Unable to add review' }), { status: 500 })
+    return new Response(JSON.stringify({ error: getDbErrorMessage(error) }), { status: 500 })
   }
 }

@@ -34,8 +34,12 @@ const cartSlice = createSlice({
     removeCartSuccess: (state, action) => {
       state.loading = false
       const existingProductIndex = state.items.findIndex((item) => item._id === action.payload._id)
+      if (existingProductIndex < 0) return
+
       state.items[existingProductIndex].quantity--
-      state.items[existingProductIndex].quantity < 1 ? state.items.splice(existingProductIndex, 1) : state.items
+      if (state.items[existingProductIndex].quantity < 1) {
+        state.items.splice(existingProductIndex, 1)
+      }
     },
     clearCart: (state) => {
       state.items = []

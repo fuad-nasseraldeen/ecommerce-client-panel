@@ -3,33 +3,36 @@ import { useState, useEffect } from 'react'
 
 // Styled components
 const ImageContainer = styled.div`
-  margin-top: 50px;
-  background-color: #f9fafb;
+  background-color: #f8fbff;
+  border: 1px solid #deebf7;
   border-radius: 1rem;
-  padding: 1.5rem;
-  height: 350px;
+  padding: 1rem;
+  min-height: 300px;
   overflow: hidden;
 `
 
 const BigImage = styled.img`
   max-width: 100%;
-  max-height: 250px;
+  max-height: 240px;
 `
 
 const ImageButtons = styled.div`
   display: flex;
-  gap: 10px;
-  margin-top: 50px;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1.1rem;
 `
 
 const ImageButton = styled.div`
   border: 2px solid #0d3d29;
-  border-color: ${(props) => (props.$active ? '#ccc' : 'transparent')};
-  height: 40px;
+  border-color: ${(props) => (props.$active ? 'var(--brand)' : 'transparent')};
+  height: 44px;
+  width: 44px;
   padding: 2px;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 8px;
   overflow: hidden;
+  background: #fff;
 `
 
 const ThumbnailImage = styled.img`
@@ -40,10 +43,10 @@ const ThumbnailImage = styled.img`
 const BigImageWrapper = styled.div`
   text-align: center;
   cursor: pointer;
-  transition: transform 1s ease-in-out;
+  transition: transform 0.4s ease-in-out;
 
   &:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
   }
 `
 

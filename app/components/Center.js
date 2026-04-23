@@ -2,9 +2,11 @@
 import styled from 'styled-components'
 
 const StyledDiv = styled.div`
-  max-width: 800px;
+  width: min(1180px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 0 20px;
+  @media (min-width: 1024px) {
+    width: min(1180px, calc(100% - 4rem));
+  }
 `
 
 export default function Center({ children }) {

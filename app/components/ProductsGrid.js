@@ -4,14 +4,14 @@ import ProductBox from '@/app/components/ProductBox'
 
 const StyledProductsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
 
   @media screen and (min-width: 768px) {
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 50px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.4rem;
   }
-  padding-bottom: 100px;
+  padding-bottom: 4rem;
 `
 export default function ProductsGrid({ products }) {
   return (
