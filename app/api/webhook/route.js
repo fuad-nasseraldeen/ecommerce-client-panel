@@ -3,6 +3,9 @@ import { getDbErrorMessage, mongooseConnect } from '@/lib/mongoose'
 import { Order } from '@/models/Order'
 import Stripe from 'stripe'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const stripe = new Stripe(process.env.STRIPE_SK)
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET
 

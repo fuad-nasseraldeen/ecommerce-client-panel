@@ -4,6 +4,9 @@ import { Order } from '@/models/Order'
 import Stripe from 'stripe'
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const stripe = new Stripe(process.env.STRIPE_SK)
 
 export async function POST(req) {

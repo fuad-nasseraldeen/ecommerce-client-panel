@@ -1,6 +1,9 @@
 import { getDbErrorMessage, mongooseConnect } from '@/lib/mongoose'
 import { Product } from '@/models/Product'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function POST(req) {
   try {
     await mongooseConnect()

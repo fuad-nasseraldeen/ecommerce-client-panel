@@ -1,6 +1,9 @@
 import { getDbErrorMessage, mongooseConnect } from '@/lib/mongoose'
 import { Category } from '@/models/Category'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(req) {
   try {
     await mongooseConnect()

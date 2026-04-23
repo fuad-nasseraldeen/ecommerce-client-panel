@@ -100,7 +100,7 @@ export default function Review({ reviews, productId }) {
       const sortReviewsByDate = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date))
       setReviewsState(sortReviewsByDate)
     }
-  }, reviews)
+  }, [reviews])
   async function handleLikeOnClick(reviewId) {
     try {
       const response = await axios.post('/api/review/like', { reviewId, productId })
