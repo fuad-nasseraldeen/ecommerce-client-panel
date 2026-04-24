@@ -90,6 +90,8 @@ const NavLink = styled(Link)`
     `}
 `
 
+const CartNavLink = styled(NavLink)``
+
 const NavButton = styled.button`
   background: transparent;
   border: 0;
@@ -140,9 +142,15 @@ export default function Header() {
             <NavLink href='/products' $isScrolled={isScrolled} $isActive={pathname === '/products'}>
               All Products
             </NavLink>
-            <NavLink href='/cart' $isScrolled={isScrolled} $isActive={pathname === '/cart'}>
+            <CartNavLink
+              href='/cart'
+              className='cart-icon'
+              data-cart-target='true'
+              $isScrolled={isScrolled}
+              $isActive={pathname === '/cart'}
+            >
               Cart ({cartItemsCount})
-            </NavLink>
+            </CartNavLink>
           </StyledNav>
 
           <NavButton

@@ -1,4 +1,4 @@
-import { getDbErrorMessage, mongooseConnect } from '@/lib/mongoose'
+import { getDbErrorMessage, getDbErrorStatus, mongooseConnect } from '@/lib/mongoose'
 import { Category } from '@/models/Category'
 
 export const dynamic = 'force-dynamic'
@@ -11,6 +11,6 @@ export async function GET(req) {
     return new Response(JSON.stringify(categories), { status: 200 })
   } catch (error) {
     console.error('Error fetching categories:', error)
-    return new Response(JSON.stringify({ message: getDbErrorMessage(error) }), { status: 500 })
+    return new Response(JSON.stringify({ message: getDbErrorMessage(error) }), { status: getDbErrorStatus(error) })
   }
 }

@@ -2,7 +2,10 @@ export default function flyToCart(e, whiteBoxElement) {
   if (typeof window === 'undefined' || typeof document === 'undefined') return
 
   try {
-    const cartIcon = document.querySelector('.cart-icon') // Select the cart icon
+    const cartIcon =
+      document.querySelector('[data-cart-target="true"]') ||
+      document.querySelector('.cart-icon') ||
+      document.querySelector('a[href="/cart"]')
     if (!cartIcon || typeof cartIcon.getBoundingClientRect !== 'function') return
 
     const fallbackElement =
