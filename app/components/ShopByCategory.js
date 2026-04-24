@@ -1,6 +1,6 @@
 'use client'
 import { useMemo } from 'react'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProductsByCategory } from '../redux/productActions'
 import Link from 'next/link'
@@ -110,10 +110,43 @@ const StateMessage = styled.p`
   color: var(--text-secondary);
 `
 
+const shimmer = keyframes`
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+`
+
+const SkeletonCard = styled.div`
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: linear-gradient(165deg, #ffffff 0%, #f4f8fd 100%);
+  padding: 0.7rem;
+  min-height: 215px;
+`
+
+const SkeletonImage = styled.div`
+  width: 100%;
+  height: 140px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #e8eff8 25%, #f4f8fd 37%, #e8eff8 63%);
+  background-size: 400% 100%;
+  animation: ${shimmer} 1.3s ease-in-out infinite;
+`
+
+const SkeletonText = styled.div`
+  margin-top: 0.85rem;
+  height: 16px;
+  width: 60%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e8eff8 25%, #f4f8fd 37%, #e8eff8 63%);
+  background-size: 400% 100%;
+  animation: ${shimmer} 1.3s ease-in-out infinite;
+`
+
 export default function ShopByCategory() {
   const categories = useSelector((state) => state.products.categories)
   const products = useSelector((state) => state.products.products)
   const error = useSelector((state) => state.products.error)
+  const categoriesLoaded = useSelector((state) => state.products.categoriesLoaded)
   const dispatch = useDispatch()
 
   const categoryProductImageMap = useMemo(() => {
@@ -152,28 +185,39 @@ export default function ShopByCategory() {
       <Container>
         <Title>Shop by category</Title>
         {error && <StateMessage>Error: {error}</StateMessage>}
-        {(!categories || categories.length === 0) && <StateMessage>No categories available.</StateMessage>}
+        {categoriesLoaded && (!categories || categories.length === 0) && <StateMessage>No categories available.</StateMessage>}
 
-        <CategoriesGrid>
-          {categories?.map((category) => {
-            const categoryImg = categoryProductImageMap[String(category?._id)]
-            const url = '/products/category/' + category?._id
+        {!categoriesLoaded ? (
+          <CategoriesGrid>
+            {Array.from({ length: 4 }).map((_, index) => (
+              <SkeletonCard key={`skeleton-category-${index}`}>
+                <SkeletonImage />
+                <SkeletonText />
+              </SkeletonCard>
+            ))}
+          </CategoriesGrid>
+        ) : (
+          <CategoriesGrid>
+            {categories?.map((category) => {
+              const categoryImg = categoryProductImageMap[String(category?._id)]
+              const url = '/products/category/' + category?._id
 
-            return (
-              <CategoryCard key={category?._id} href={url} onClick={() => handleSelectedCategory(category?._id)}>
-                <ProductImageWrapper>
-                  {categoryImg ? (
-                    <ProductImage src={categoryImg} alt={category?.name} loading='lazy' />
-                  ) : (
-                    <EmptyImage>{category?.name?.slice(0, 2)?.toUpperCase() || 'NA'}</EmptyImage>
-                  )}
-                </ProductImageWrapper>
-                <ProductTitle>{category?.name}</ProductTitle>
-                <ProductCaption>Explore collection</ProductCaption>
-              </CategoryCard>
-            )
-          })}
-        </CategoriesGrid>
+              return (
+                <CategoryCard key={category?._id} href={url} onClick={() => handleSelectedCategory(category?._id)}>
+                  <ProductImageWrapper>
+                    {categoryImg ? (
+                      <ProductImage src={categoryImg} alt={category?.name} loading='lazy' />
+                    ) : (
+                      <EmptyImage>{category?.name?.slice(0, 2)?.toUpperCase() || 'NA'}</EmptyImage>
+                    )}
+                  </ProductImageWrapper>
+                  <ProductTitle>{category?.name}</ProductTitle>
+                  <ProductCaption>Explore collection</ProductCaption>
+                </CategoryCard>
+              )
+            })}
+          </CategoriesGrid>
+        )}
       </Container>
     </Section>
   )

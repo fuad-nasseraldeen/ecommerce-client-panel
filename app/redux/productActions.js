@@ -4,7 +4,9 @@ import {
   fetchProductsSuccess,
   fetchProductsFailure,
   setCategories,
+  setCategoriesFailure,
   setNewArrivals,
+  setNewArrivalsFailure,
   setHomePageProduct,
   setProductsByCategory,
   setClearProductsByCategory,
@@ -36,6 +38,7 @@ export const fetchNewArrivals = () => async (dispatch) => {
     dispatch(setNewArrivals(response.data))
   } catch (error) {
     console.error('Error fetching new arrivals:', error)
+    dispatch(setNewArrivalsFailure(error.message))
   }
 }
 
@@ -46,6 +49,7 @@ export const fetchCategories = () => async (dispatch) => {
     dispatch(setCategories(response.data))
   } catch (error) {
     console.error('Error fetching categories:', error)
+    dispatch(setCategoriesFailure(error.message))
   }
 }
 
